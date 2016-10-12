@@ -68,15 +68,4 @@ public class RunningApps extends AppCompatActivity {
 
         arrayAdapter.notifyDataSetChanged();
     }
-
-    public class myAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            updateProcesses();
-
-            return null;
-        }
-    }
-
 }

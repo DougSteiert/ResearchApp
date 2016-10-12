@@ -1,18 +1,40 @@
 package com.djsg38.locationprivacyapp;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
-import com.djsg38.library.AndroidProcesses;
-import com.squareup.picasso.Picasso;
-
-import com.djsg38.locationprivacyapp.listRunningApps.fragments.ProcessListFragment;
-import com.djsg38.locationprivacyapp.listRunningApps.picasso.AppIconRequestHandler;
+import java.util.ArrayList;
+import java.util.List;
 
 public class RunningApps extends AppCompatActivity {
+
+    ListView processList;
+    ArrayList<String> processes;
+    ArrayAdapter<String> arrayAdapter;
+
+    private final int interval = 10000; // 10 seconds
+    private Handler handler = new Handler();
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            updateProcesses();
+            handler.postDelayed(runnable, interval);
+        }
+    };
+
+    public void startTimer() {
+        handler.postDelayed(runnable, interval);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,8 +45,37 @@ public class RunningApps extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction().add(android.R.id.content, new ProcessListFragment()).commit();
+        processes = new ArrayList<String>();
+        processList = (ListView) findViewById(R.id.processList);
+        arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, processes);
+        processList.setAdapter(arrayAdapter);
+
+        updateProcesses();
+
+        startTimer();
+    }
+
+    public void updateProcesses() {
+        ActivityManager activityManager = (ActivityManager) getApplicationContext().getSystemService((ACTIVITY_SERVICE));
+
+        processes.clear();
+        List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+
+        for(int i = 0; i < procInfos.size(); i++) {
+            Log.i("Process: ", procInfos.get(i).processName.toString());
+            processes.add(procInfos.get(i).processName);
+        }
+
+        arrayAdapter.notifyDataSetChanged();
+    }
+
+    public class myAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            updateProcesses();
+
+            return null;
         }
     }
 

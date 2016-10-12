@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
     View.OnClickListener listRunningApps = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(MainActivity.this, RunningApps.class);
+            Intent intent = new Intent(getApplicationContext(), RunningApps.class);
             startActivity(intent);
         }
     };

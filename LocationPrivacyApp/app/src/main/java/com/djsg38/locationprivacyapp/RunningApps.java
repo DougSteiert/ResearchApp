@@ -62,7 +62,6 @@ public class RunningApps extends AppCompatActivity {
         List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
 
         for(int i = 0; i < procInfos.size(); i++) {
-            Log.i("Process: ", procInfos.get(i).processName.toString());
             processes.add(procInfos.get(i).processName);
         }
 

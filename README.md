@@ -1,4 +1,4 @@
 # ResearchApp
-# Authors: Doug Steiert & Quincy Cundiff
+# Authors: Doug Steiert & Quincy Conduff
 
 # Location Privacy App 

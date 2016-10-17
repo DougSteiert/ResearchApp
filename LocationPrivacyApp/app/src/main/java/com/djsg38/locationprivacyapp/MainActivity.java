@@ -15,6 +15,7 @@ import android.os.Handler;
 
 import android.location.Location;
 import android.location.LocationManager;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void logLocation() {
         Location loc = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         Log.i("Mock Location: ", loc.toString());
+        Toast.makeText(this, "Mocked (lat, lng): (" + String.valueOf(loc.getLatitude()) + ", " + String.valueOf(loc.getLongitude()) + ")", Toast.LENGTH_SHORT).show();
     }
 
     public void startTimer() {
@@ -82,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             Log.i("Mock Location: ", loc.toString());
 
             Log.i("Timer", "Going to start timer.");
+            logLocation();
             startTimer();
         }
         catch (Exception e) {

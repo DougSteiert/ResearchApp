@@ -1,9 +1,12 @@
 package com.djsg38.locationprivacyapp;
 
-import android.content.Context;
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -15,6 +18,7 @@ import android.os.Handler;
 
 import android.location.Location;
 import android.location.LocationManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -28,24 +32,33 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     Button showProcesses;
     Button activateMockLocs;
 
+    TextView latView;
+    TextView longView;
+
+    Boolean activated = false;
+
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
+
+    Location previousLoc;
 
     Handler handler = new Handler();
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
             logLocation();
-            handler.postDelayed(runnable, 10000);
         }
     };
 
+    // Just log the mock location and feed to UI
     public void logLocation() {
         Location loc = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        previousLoc = loc;
         Log.i("Mock Location: ", loc.toString());
         Toast.makeText(this, "Mocked (lat, lng): (" + String.valueOf(loc.getLatitude()) + ", " + String.valueOf(loc.getLongitude()) + ")", Toast.LENGTH_SHORT).show();
     }
 
+    // Initiate a timer for logging location
     public void startTimer() {
         Log.i("Timer", "Started timer.");
         handler.postDelayed(runnable, 10000);
@@ -60,14 +73,37 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     };
 
+    // Wait for clock on "Activate Mock Locations"
     View.OnClickListener activateMockLocations = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Log.i("MockLocs", "Clicked mock Locs.");
-            initiateMockLocs();
+
+            if (!activated) {
+                activateMockLocs.setText("Deactivate Mock Locations");
+                initiateMockLocs();
+                activated = true;
+            } else {
+                activateMockLocs.setText("Activate Mock Locations");
+                stopMockLocs();
+                activated = false;
+            }
         }
     };
 
+    // Stop faking the location
+    public void stopMockLocs() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        Location loc = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+        Log.i("MockLocs", "Deactivating mock locs");
+        handler.removeCallbacks(runnable);
+        LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, false);
+        Toast.makeText(this, "Your current location is: (" + String.valueOf(loc.getLatitude()) + ", " + String.valueOf(loc.getLongitude()) + ")", Toast.LENGTH_SHORT).show();
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+    }
+
+    // Begin faking the location
     public void initiateMockLocs() {
         Location mockLoc = new Location(LocationManager.NETWORK_PROVIDER);
         mockLoc.setLatitude(41.881832);
@@ -86,8 +122,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             Log.i("Timer", "Going to start timer.");
             logLocation();
             startTimer();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -101,6 +136,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         getSupportActionBar().setDisplayShowTitleEnabled(true);
 
+        latView = (TextView) findViewById(R.id.latView);
+        longView = (TextView) findViewById(R.id.longView);
+
         showProcesses = (Button) findViewById(R.id.listApps);
         showProcesses.setOnClickListener(listRunningApps);
 
@@ -110,9 +148,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         createLocationRequest();
         buildGoogleApiClient();
         mGoogleApiClient.connect();
-
     }
 
+    // Initialize a LocationRequest object
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
@@ -120,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
 
+    // Initialize a GoogleApiClient object
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -163,7 +202,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onLocationChanged(Location location) {
-        initiateMockLocs();
+        double lat =  location.getLatitude();
+        double lng = location.getLongitude();
+
+        latView.setText("Lat: " + String.valueOf(lat));
+        longView.setText("Long: " + String.valueOf(lng));
+
+        if(activated) {
+            initiateMockLocs();
+        }
+        else {
+            previousLoc = location;
+        }
     }
 
     public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -171,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     public void onProviderEnabled(String provider) {
-
+        Toast.makeText(this, "Enabled new provider " + provider, Toast.LENGTH_SHORT).show();
     }
 
     public void onProviderDisabled(String provider) {

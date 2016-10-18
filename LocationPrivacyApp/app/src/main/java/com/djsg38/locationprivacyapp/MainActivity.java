@@ -21,11 +21,14 @@ import android.location.LocationManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.djsg38.locationprivacyapp.models.Session;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+
+import io.realm.Realm;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -41,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     GoogleApiClient mGoogleApiClient;
 
     Location previousLoc;
+
+    Realm realm;
 
     Handler handler = new Handler();
     Runnable runnable = new Runnable() {
@@ -112,6 +117,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mockLoc.setTime(System.currentTimeMillis());
         mockLoc.setElapsedRealtimeNanos(System.nanoTime());
 
+        realm = Realm.getDefaultInstance();
+
+        Session first_session = realm.where(Session.class).findFirst();
+
+        if(first_session != null) {
+            for (com.djsg38.locationprivacyapp.models.Location loc : first_session.getLocations()) {
+                Log.i("Current Location: ", loc.toString());
+            }
+        }
+
         try {
             LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, true);
             LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, mockLoc);
@@ -130,11 +145,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayShowTitleEnabled(true);
+
+        Realm.init(this);
 
         latView = (TextView) findViewById(R.id.latView);
         longView = (TextView) findViewById(R.id.longView);
@@ -148,6 +166,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         createLocationRequest();
         buildGoogleApiClient();
         mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        realm.close();
     }
 
     // Initialize a LocationRequest object
@@ -201,7 +225,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     @Override
-    public void onLocationChanged(Location location) {
+    public void onLocationChanged(final Location location) {
+        realm = Realm.getDefaultInstance();
+
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                Session new_session = realm.createObject(Session.class);
+                com.djsg38.locationprivacyapp.models.Location cur = realm.createObject(com.djsg38.locationprivacyapp.models.Location.class);
+                cur.setLong(location.getLongitude());
+                cur.setLat(location.getLatitude());
+                new_session.getLocations().add(cur);
+                Log.i("First Lcoation: ", new_session.getLocations().first().toString());
+            }
+        });
+
         double lat =  location.getLatitude();
         double lng = location.getLongitude();
 

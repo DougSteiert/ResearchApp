@@ -31,38 +31,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     Button showProcesses;
     Button activateMockLocs;
-
     TextView latView;
     TextView longView;
-
-    Boolean activated = false;
+    Location previousLoc;
 
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
 
-    Location previousLoc;
+    Boolean activated = false;
 
-    Handler handler = new Handler();
-    Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            logLocation();
-        }
-    };
-
-    // Just log the mock location and feed to UI
-    public void logLocation() {
-        Location loc = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        previousLoc = loc;
-        Log.i("Mock Location: ", loc.toString());
-        Toast.makeText(this, "Mocked (lat, lng): (" + String.valueOf(loc.getLatitude()) + ", " + String.valueOf(loc.getLongitude()) + ")", Toast.LENGTH_SHORT).show();
-    }
-
-    // Initiate a timer for logging location
-    public void startTimer() {
-        Log.i("Timer", "Started timer.");
-        handler.postDelayed(runnable, 10000);
-    }
+    AnonymizationService anonymizationService;
 
     // Wait for click on "List Running Applications" button and create new activity
     View.OnClickListener listRunningApps = new View.OnClickListener() {
@@ -81,10 +59,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             if (!activated) {
                 activateMockLocs.setText("Deactivate Mock Locations");
-                initiateMockLocs();
+                startService(new Intent(getBaseContext(), AnonymizationService.class));
                 activated = true;
             } else {
                 activateMockLocs.setText("Activate Mock Locations");
+                stopService(new Intent(getBaseContext(), AnonymizationService.class));
                 stopMockLocs();
                 activated = false;
             }
@@ -97,34 +76,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Location loc = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
         Log.i("MockLocs", "Deactivating mock locs");
-        handler.removeCallbacks(runnable);
+        anonymizationService.handler.removeCallbacks(anonymizationService.runnable);
         LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, false);
         Toast.makeText(this, "Your current location is: (" + String.valueOf(loc.getLatitude()) + ", " + String.valueOf(loc.getLongitude()) + ")", Toast.LENGTH_SHORT).show();
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-    }
-
-    // Begin faking the location
-    public void initiateMockLocs() {
-        Location mockLoc = new Location(LocationManager.NETWORK_PROVIDER);
-        mockLoc.setLatitude(41.881832);
-        mockLoc.setLongitude(-87.623177);
-        mockLoc.setAccuracy(20);
-        mockLoc.setTime(System.currentTimeMillis());
-        mockLoc.setElapsedRealtimeNanos(System.nanoTime());
-
-        try {
-            LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, true);
-            LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, mockLoc);
-
-            Location loc = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            Log.i("Mock Location: ", loc.toString());
-
-            Log.i("Timer", "Going to start timer.");
-            logLocation();
-            startTimer();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -136,8 +91,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         getSupportActionBar().setDisplayShowTitleEnabled(true);
 
-        latView = (TextView) findViewById(R.id.latView);
-        longView = (TextView) findViewById(R.id.longView);
+        createLocationRequest();
+        buildGoogleApiClient();
+        mGoogleApiClient.connect();
 
         showProcesses = (Button) findViewById(R.id.listApps);
         showProcesses.setOnClickListener(listRunningApps);
@@ -145,17 +101,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         activateMockLocs = (Button) findViewById(R.id.activateMock);
         activateMockLocs.setOnClickListener(activateMockLocations);
 
-        createLocationRequest();
-        buildGoogleApiClient();
-        mGoogleApiClient.connect();
+        latView = (TextView) findViewById(R.id.latView);
+        longView = (TextView) findViewById(R.id.longView);
+
+        anonymizationService = new AnonymizationService();
     }
 
-    // Initialize a LocationRequest object
-    protected void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(10000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     // Initialize a GoogleApiClient object
@@ -167,12 +123,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 .build();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    // Initialize a LocationRequest object
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(10000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -190,17 +148,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     @Override
-    public void onConnected(Bundle bundle) {
-        //do things related to location access.
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
     public void onLocationChanged(Location location) {
         double lat =  location.getLatitude();
         double lng = location.getLongitude();
@@ -209,22 +156,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         longView.setText("Long: " + String.valueOf(lng));
 
         if(activated) {
-            initiateMockLocs();
+            anonymizationService.initiateMockLocs();
         }
         else {
             previousLoc = location;
         }
     }
 
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
+    @Override
+    public void onConnected(Bundle bundle) {
+        //do things related to location access.
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
-    public void onProviderEnabled(String provider) {
-        Toast.makeText(this, "Enabled new provider " + provider, Toast.LENGTH_SHORT).show();
-    }
-
-    public void onProviderDisabled(String provider) {
+    @Override
+    public void onConnectionSuspended(int i) {
 
     }
 

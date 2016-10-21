@@ -10,7 +10,15 @@ import io.realm.annotations.Ignore;
 
 public class Session extends RealmObject {
     public RealmList<Location> locations;
-    //Add Histogram here?
+    public RealmList<Preference> preferences;
+
+    public RealmList<Preference> getPreferences() {
+        return preferences;
+    }
+
+    public void setPreferences(RealmList<Preference> preferences) {
+        this.preferences = preferences;
+    }
 
     public RealmList<Location> getLocations() {
         return locations;

@@ -26,6 +26,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -33,12 +34,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     Button activateMockLocs;
     TextView latView;
     TextView longView;
-    Location previousLoc;
 
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
 
-    Boolean activated = false;
+    static Boolean activated = false;
 
     AnonymizationService anonymizationService;
 
@@ -59,27 +59,20 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             if (!activated) {
                 activateMockLocs.setText("Deactivate Mock Locations");
-                startService(new Intent(getBaseContext(), AnonymizationService.class));
+                startService(new Intent(MainActivity.this, AnonymizationService.class));
                 activated = true;
             } else {
                 activateMockLocs.setText("Activate Mock Locations");
-                stopService(new Intent(getBaseContext(), AnonymizationService.class));
-                stopMockLocs();
+                stopService(new Intent(MainActivity.this, AnonymizationService.class));
                 activated = false;
             }
         }
     };
 
-    // Stop faking the location
-    public void stopMockLocs() {
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-        Location loc = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+    public void updateCoords(double lat, double lng) {
+        latView.setText("Lat: " + String.valueOf(lat));
+        longView.setText("Long: " + String.valueOf(lng));
 
-        Log.i("MockLocs", "Deactivating mock locs");
-        anonymizationService.handler.removeCallbacks(anonymizationService.runnable);
-        LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, false);
-        Toast.makeText(this, "Your current location is: (" + String.valueOf(loc.getLatitude()) + ", " + String.valueOf(loc.getLongitude()) + ")", Toast.LENGTH_SHORT).show();
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
     @Override
@@ -154,13 +147,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         latView.setText("Lat: " + String.valueOf(lat));
         longView.setText("Long: " + String.valueOf(lng));
-
-        if(activated) {
-            anonymizationService.initiateMockLocs();
-        }
-        else {
-            previousLoc = location;
-        }
     }
 
     @Override

@@ -28,36 +28,13 @@ public class AnonymizationService extends Service {
 
     //public static final String INTENT_FILTER = "AnonymizationIntent";
 
-    MainActivity mMainActivity;
-
-    Handler handler = new Handler();
-    Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            logLocation();
-        }
-    };
-
-    // Initiate a timer for logging location
-    public void startTimer() {
-        Log.i("Timer", "Started timer.");
-        handler.postDelayed(runnable, 10000);
-    }
+    LocationAnonymizer locationAnonymizer;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        mMainActivity = new MainActivity();
-        initiateMockLocs();
-    }
-
-    // Just log the mock location and feed to UI
-    public void logLocation() {
-        Location loc = LocationServices.FusedLocationApi.getLastLocation(mMainActivity.mGoogleApiClient);
-        mMainActivity.previousLoc = loc;
-        Log.i("Mock Location: ", loc.toString());
-        Toast.makeText(this, "Mocked (lat, lng): (" + String.valueOf(loc.getLatitude()) + ", " + String.valueOf(loc.getLongitude()) + ")", Toast.LENGTH_SHORT).show();
+        locationAnonymizer = new LocationAnonymizer(this, this);
     }
 
     @Override
@@ -78,7 +55,8 @@ public class AnonymizationService extends Service {
         return Service.START_STICKY;
     }
 
-    private void stopAnonymization() {
+    private void stopService() {
+        locationAnonymizer.stopMockLocs();
         this.stopService(new Intent(getBaseContext(), AnonymizationService.class));
     }
 
@@ -95,41 +73,5 @@ public class AnonymizationService extends Service {
         notif.flags |= Notification.FLAG_NO_CLEAR;
 
         startForeground(1395, notif);
-    }
-
-    // Begin faking the location
-    public void initiateMockLocs() {
-        Location mockLoc = new Location(LocationManager.NETWORK_PROVIDER);
-        mockLoc.setLatitude(41.881832);
-        mockLoc.setLongitude(-87.623177);
-        mockLoc.setAccuracy(20);
-        mockLoc.setTime(System.currentTimeMillis());
-        mockLoc.setElapsedRealtimeNanos(System.nanoTime());
-
-        try {
-            LocationServices.FusedLocationApi.setMockMode(mMainActivity.mGoogleApiClient, true);
-            LocationServices.FusedLocationApi.setMockLocation(mMainActivity.mGoogleApiClient, mockLoc);
-
-            Location loc = LocationServices.FusedLocationApi.getLastLocation(mMainActivity.mGoogleApiClient);
-            Log.i("Mock Location: ", loc.toString());
-
-            Log.i("Timer", "Going to start timer.");
-            logLocation();
-            startTimer();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    public void onProviderEnabled(String provider) {
-        Toast.makeText(this, "Enabled new provider " + provider, Toast.LENGTH_SHORT).show();
-    }
-
-    public void onProviderDisabled(String provider) {
-
     }
 }

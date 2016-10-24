@@ -30,7 +30,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.djsg38.locationprivacyapp.MainActivity" />
         </activity>
-        <service android:name=".AnonymizationService" />
+        <service android:name=".AnonymizationService"
+            android:enabled="true"
+            android:exported="false">
+        </service>
     </application>
 
 </manifest>

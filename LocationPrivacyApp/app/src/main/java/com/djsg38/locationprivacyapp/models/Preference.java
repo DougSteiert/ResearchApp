@@ -10,6 +10,7 @@ public class Preference extends RealmObject {
     public String name;
     public boolean isService;
     public double privacyScale;
+    public Histogram before, after;
 
     public String getName() {
         return name;

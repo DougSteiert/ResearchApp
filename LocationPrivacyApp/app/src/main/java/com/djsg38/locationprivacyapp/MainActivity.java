@@ -1,12 +1,7 @@
 package com.djsg38.locationprivacyapp;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Criteria;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -122,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         Session first_session = realm.where(Session.class).findFirst();
 
         if(first_session != null) {
-            for (com.djsg38.locationprivacyapp.models.Location loc : first_session.getLocations()) {
+            for (com.djsg38.locationprivacyapp.models.Location loc : first_session.getRealLocations()) {
                 Log.i("Current Location: ", loc.toString());
             }
         }
@@ -235,8 +230,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 com.djsg38.locationprivacyapp.models.Location cur = realm.createObject(com.djsg38.locationprivacyapp.models.Location.class);
                 cur.setLong(location.getLongitude());
                 cur.setLat(location.getLatitude());
-                new_session.getLocations().add(cur);
-                Log.i("First Lcoation: ", new_session.getLocations().first().toString());
+                new_session.getRealLocations().add(cur);
+                Log.i("First Lcoation: ", new_session.getRealLocations().first().toString());
             }
         });
 

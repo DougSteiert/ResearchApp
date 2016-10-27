@@ -1,7 +1,7 @@
 package com.djsg38.locationprivacyapp.models;
 
 import io.realm.RealmObject;
-import io.realm.annotations.Ignore;
+
 
 public class Location extends RealmObject {
     public double Long, Lat;

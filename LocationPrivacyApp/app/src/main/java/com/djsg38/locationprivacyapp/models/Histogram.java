@@ -1,7 +1,5 @@
 package com.djsg38.locationprivacyapp.models;
 
-import java.util.HashMap;
-
 import io.realm.RealmList;
 import io.realm.RealmObject;
 
@@ -16,5 +14,11 @@ public class Histogram extends RealmObject {
         table.where().equalTo("locHash", hash).findFirst().incCount();
     }
 
+    public RealmList<LocationBucket> getTable() {
+        return table;
+    }
 
+    public void setTable(RealmList<LocationBucket> table) {
+        this.table = table;
+    }
 }

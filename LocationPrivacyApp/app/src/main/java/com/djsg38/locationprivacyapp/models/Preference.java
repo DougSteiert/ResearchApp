@@ -36,4 +36,22 @@ public class Preference extends RealmObject {
         this.privacyScale = privacyScale;
     }
 
+    public Histogram getBefore() {
+        return before;
+    }
+
+    public void setBefore(Histogram before) {
+        this.before = before;
+    }
+
+    public Histogram getAfter() {
+        return after;
+    }
+
+    public void setAfter(Histogram after) {
+        this.after = after;
+    }
+
+
+
 }

@@ -24,6 +24,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
 import io.realm.Realm;
+import io.realm.RealmConfiguration;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     Location previousLoc;
 
     Realm realm;
+    RealmConfiguration config;
 
     Handler handler = new Handler();
     Runnable runnable = new Runnable() {
@@ -118,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         if(first_session != null) {
             for (com.djsg38.locationprivacyapp.models.Location loc : first_session.getRealLocations()) {
-                Log.i("Current Location: ", loc.toString());
+                Log.i("Current Realm Location ", loc.toString());
             }
         }
 
@@ -148,6 +150,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         getSupportActionBar().setDisplayShowTitleEnabled(true);
 
         Realm.init(this);
+        realm = Realm.getDefaultInstance();
+
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realm.deleteAll();
+            }
+        });
+
+        Log.i("Total sessions: ", String.valueOf(realm.where(Session.class).count()));
 
         latView = (TextView) findViewById(R.id.latView);
         longView = (TextView) findViewById(R.id.longView);
@@ -231,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 cur.setLong(location.getLongitude());
                 cur.setLat(location.getLatitude());
                 new_session.getRealLocations().add(cur);
-                Log.i("First Lcoation: ", new_session.getRealLocations().first().toString());
+                Log.i("Recent Location: ", new_session.getRealLocations().last().toString());
             }
         });
 

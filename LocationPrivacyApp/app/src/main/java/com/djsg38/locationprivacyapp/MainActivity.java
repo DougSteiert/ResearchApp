@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     Button showProcesses;
     Button activateMockLocs;
+    private Button showPreferences;
 
     TextView latView;
     TextView longView;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             logLocation();
         }
     };
+
 
     // Just log the mock location and feed to UI
     public void logLocation() {
@@ -90,6 +92,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 stopMockLocs();
                 activated = false;
             }
+        }
+    };
+
+    View.OnClickListener listPreferences = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(getApplicationContext(), PreferenceList.class);
+            startActivity(intent);
         }
     };
 
@@ -155,7 +165,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         realm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                realm.deleteAll();
+                long sessionCount = realm.where(Session.class).count();
+                if(sessionCount > 1) {
+                    realm.deleteAll();
+                }
+                Session session = realm.where(Session.class).findFirst();
+                if(session == null) realm.createObject(Session.class);
             }
         });
 
@@ -169,6 +184,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         activateMockLocs = (Button) findViewById(R.id.activateMock);
         activateMockLocs.setOnClickListener(activateMockLocations);
+
+        showPreferences = (Button) findViewById(R.id.preferenceList);
+        showPreferences.setOnClickListener(listPreferences);
 
         createLocationRequest();
         buildGoogleApiClient();
@@ -238,12 +256,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         realm.executeTransaction(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
-                Session new_session = realm.createObject(Session.class);
+                Session session = realm.where(Session.class).findFirst();
                 com.djsg38.locationprivacyapp.models.Location cur = realm.createObject(com.djsg38.locationprivacyapp.models.Location.class);
                 cur.setLong(location.getLongitude());
                 cur.setLat(location.getLatitude());
-                new_session.getRealLocations().add(cur);
-                Log.i("Recent Location: ", new_session.getRealLocations().last().toString());
+                session.getRealLocations().add(cur);
+                Log.i("Recent Location: ", session.getRealLocations().last().toString());
             }
         });
 

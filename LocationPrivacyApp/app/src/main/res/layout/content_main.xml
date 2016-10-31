@@ -46,4 +46,12 @@
         android:layout_alignStart="@+id/latView"
         android:layout_marginTop="20dp"
         android:id="@+id/longView" />
+
+    <Button
+        android:text="Generate Nearby Cities"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/genLocs"
+        android:layout_alignTop="@+id/latView"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

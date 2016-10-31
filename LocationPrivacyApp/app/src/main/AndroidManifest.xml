@@ -4,7 +4,8 @@
 
     <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -30,10 +31,21 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.djsg38.locationprivacyapp.MainActivity" />
         </activity>
-        <service android:name=".AnonymizationService"
+
+        <service
+            android:name=".AnonymizationService"
             android:enabled="true"
-            android:exported="false">
-        </service>
+            android:exported="false"></service>
+
+        <activity
+            android:name=".ListRandomCities"
+            android:label="@string/title_activity_list_random_cities"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.djsg38.locationprivacyapp.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

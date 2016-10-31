@@ -1,12 +1,7 @@
 package com.djsg38.locationprivacyapp;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Criteria;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -14,24 +9,21 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
-import android.os.Handler;
 
 import android.location.Location;
-import android.location.LocationManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.LatLng;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     Button showProcesses;
     Button activateMockLocs;
+    Button genLocs;
     TextView latView;
     TextView longView;
 
@@ -69,6 +61,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     };
 
+    View.OnClickListener generateLocs = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(getApplicationContext(), ListRandomCities.class);
+            startActivity(intent);
+        }
+    };
+
     public void updateCoords(double lat, double lng) {
         latView.setText("Lat: " + String.valueOf(lat));
         longView.setText("Long: " + String.valueOf(lng));
@@ -88,14 +88,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         buildGoogleApiClient();
         mGoogleApiClient.connect();
 
+        latView = (TextView) findViewById(R.id.latView);
+        longView = (TextView) findViewById(R.id.longView);
+
         showProcesses = (Button) findViewById(R.id.listApps);
         showProcesses.setOnClickListener(listRunningApps);
 
         activateMockLocs = (Button) findViewById(R.id.activateMock);
         activateMockLocs.setOnClickListener(activateMockLocations);
 
-        latView = (TextView) findViewById(R.id.latView);
-        longView = (TextView) findViewById(R.id.longView);
+        genLocs = (Button) findViewById(R.id.genLocs);
+        genLocs.setOnClickListener(generateLocs);
 
         anonymizationService = new AnonymizationService();
     }

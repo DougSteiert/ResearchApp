@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 
 
@@ -17,6 +19,7 @@ public class ListRandomCities extends AppCompatActivity {
     GenerateNearbyCities cityGen;
     ArrayList<XMLAttributes> randLocs;
     ArrayList<String> cityNames;
+    static ArrayList<LatLng> cityCoords;
     ArrayAdapter<String> arrayAdapter;
     ListView cities;
 
@@ -34,9 +37,11 @@ public class ListRandomCities extends AppCompatActivity {
         cityGen = new GenerateNearbyCities();
         randLocs = cityGen.generateLocations();
         cityNames = new ArrayList<>();
+        cityCoords = new ArrayList<>();
 
         for(XMLAttributes data : randLocs) {
             cityNames.add(data.getName());
+            cityCoords.add(new LatLng(data.getLat(), data.getLng()));
         }
 
         arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, cityNames);

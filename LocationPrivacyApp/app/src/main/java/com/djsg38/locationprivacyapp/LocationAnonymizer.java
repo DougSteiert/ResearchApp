@@ -16,6 +16,10 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.Random;
+
+import static com.djsg38.locationprivacyapp.ListRandomCities.cityCoords;
+
 public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     Context context;
@@ -24,6 +28,8 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     GoogleApiClient mGoogleApiClient;
     AnonymizationService anonymizationService;
     MainActivity mainActivity;
+    Random rand;
+    int randIndex;
 
     static Location previousLoc;
 
@@ -74,9 +80,11 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     }
 
     private void setMockLocation() {
+        rand = new Random();
+        randIndex = rand.nextInt(cityCoords.size());
         Location mockLoc = new Location(LocationManager.NETWORK_PROVIDER);
-        mockLoc.setLatitude(41.881832);
-        mockLoc.setLongitude(-87.623177);
+        mockLoc.setLatitude(cityCoords.get(randIndex).latitude);
+        mockLoc.setLongitude(cityCoords.get(randIndex).longitude);
         mockLoc.setAccuracy(20);
         mockLoc.setTime(System.currentTimeMillis());
         mockLoc.setElapsedRealtimeNanos(System.nanoTime());

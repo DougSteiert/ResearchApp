@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     public void updateCoords(double lat, double lng) {
         latView.setText("Lat: " + String.valueOf(lat));
-        longView.setText("Long: " + String.valueOf(lng));
+        longView.setText("Lng: " + String.valueOf(lng));
 
     }
 
@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         double lng = location.getLongitude();
 
         latView.setText("Lat: " + String.valueOf(lat));
-        longView.setText("Long: " + String.valueOf(lng));
+        longView.setText("Lng: " + String.valueOf(lng));
     }
 
     @Override

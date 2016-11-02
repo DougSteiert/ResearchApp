@@ -47,7 +47,6 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         Location loc = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         previousLoc = loc;
         Log.i("Mock Location: ", loc.toString());
-        Toast.makeText(context, "Mocked (lat, lng): (" + String.valueOf(loc.getLatitude()) + ", " + String.valueOf(loc.getLongitude()) + ")", Toast.LENGTH_SHORT).show();
     }
 
     public LocationAnonymizer(Context context, AnonymizationService anonymizationService) {
@@ -92,12 +91,6 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         try {
             LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, true);
             LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, mockLoc);
-
-            Location loc = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            LatLng location = new LatLng(mockLoc.getLatitude(), mockLoc.getLongitude());
-            mainActivity.updateCoords(mockLoc.getLatitude(), mockLoc.getLongitude());
-
-            Log.i("Mock Location: ", loc.toString());
 
             logLocation();
         }

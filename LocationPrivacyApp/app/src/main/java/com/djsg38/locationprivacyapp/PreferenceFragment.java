@@ -3,7 +3,7 @@ package com.djsg38.locationprivacyapp;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +46,7 @@ public class PreferenceFragment extends Fragment {
      * @return A new instance of fragment PreferenceFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static PreferenceFragment newInstance(String param1, String param2) {
+    public static Fragment newInstance(String param1, String param2) {
         PreferenceFragment fragment = new PreferenceFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
@@ -63,6 +63,7 @@ public class PreferenceFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
@@ -73,9 +74,9 @@ public class PreferenceFragment extends Fragment {
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
+    public void onButtonPressed(int position) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+            mListener.onFragmentInteraction(position);
         }
     }
 
@@ -109,6 +110,6 @@ public class PreferenceFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void onFragmentInteraction(int position);
     }
 }

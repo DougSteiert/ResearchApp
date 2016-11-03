@@ -9,10 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.djsg38.locationprivacyapp.models.Preference;
 import com.djsg38.locationprivacyapp.models.Session;
@@ -50,11 +48,16 @@ public class PreferenceListFragment extends Fragment {
         preferenceList.setAdapter(preferenceListAdapter);
         preferenceList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(final AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Preference preference = (Preference) preferenceListAdapter.getItem(position);
                 final String preferenceName = preference.getName();
 
-//                FragmentTransaction fmt = getFragmentManager().beginTransaction();
+                FragmentTransaction fmt = getFragmentManager().beginTransaction();
+                Fragment pfm = PreferenceFragment.newInstance("ayy", "lmao");
+                fmt.replace(R.id.fragment_content, pfm);
+                fmt.addToBackStack(null);
+                fmt.commit();
+
                 realm.executeTransactionAsync(new Realm.Transaction() {
                     @Override
                     public void execute(Realm realm) {
@@ -63,7 +66,7 @@ public class PreferenceListFragment extends Fragment {
                 }, new Realm.Transaction.OnSuccess() {
                     @Override
                     public void onSuccess() {
-                        Snackbar.make(parent, "preference chosen", 1500).show();
+                        Snackbar.make(getActivity().findViewById(R.id.preference_list_container), "preference chosen", 1500).show();
                     }
                 }, new Realm.Transaction.OnError() {
                     @Override
@@ -78,7 +81,7 @@ public class PreferenceListFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        realm.getDefaultInstance();
+        realm = Realm.getDefaultInstance();
     }
 
     @Override

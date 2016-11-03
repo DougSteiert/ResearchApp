@@ -20,17 +20,29 @@ import java.util.Random;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 
-public class PreferenceList extends AppCompatActivity {
+public class PreferenceList
+        extends AppCompatActivity
+        implements PreferenceFragment.OnFragmentInteractionListener {
 
     Realm realm;
     Random rand;
+
+    public void onFragmentInteraction(int position) {
+        return;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preference_list);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        getFragmentManager()
+                .beginTransaction()
+                .add(R.id.fragment_content, new PreferenceListFragment())
+                .commit();
 
         realm = Realm.getDefaultInstance();
 

@@ -2,7 +2,7 @@
     <string name="app_name">Location Privacy App</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_running_apps">Running Apps</string>
-    <string name="title_activity_process_list">Process List</string>
+    <string name="title_activity_preference_list">Preference List</string>
 
     <string name="preference_list_header_name">Name</string>
     <string name="preference_list_header_rating">Rating</string>

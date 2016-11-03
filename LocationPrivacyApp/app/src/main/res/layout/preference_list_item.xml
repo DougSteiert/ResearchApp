@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/preferenceListItem"
-    android:clickable="true">
+    android:orientation="horizontal"
+    android:layout_margin="5dp">
 
     <TextView
         android:text="No Name Available"
@@ -11,7 +12,8 @@
         android:id="@+id/preferenceListItemName"
         android:layout_weight="1"
         android:layout_width="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Title" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Title"
+        android:layout_marginTop="10dp" />
 
     <TextView
         android:text="No Rating Available"
@@ -19,5 +21,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/preferenceListItemRating"
         android:layout_weight="1"
-        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium" />
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:layout_marginTop="10dp" />
 </LinearLayout>

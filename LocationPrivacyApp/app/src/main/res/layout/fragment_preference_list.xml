@@ -52,21 +52,12 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true" />
 
-    <ScrollView
+    <ListView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbarStyle="outsideOverlay"
-        android:layout_alignParentEnd="false"
+        android:layout_height="wrap_content"
+        android:id="@+id/preferenceList"
+        android:layout_below="@+id/preferenceListHeaders"
         android:layout_above="@+id/floatingActionButton"
-        android:layout_alignParentRight="false"
-        android:layout_below="@+id/preferenceListHeaders">
-
-        <com.djsg38.locationprivacyapp.views.PreferenceListView
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/preferenceList">
-        </com.djsg38.locationprivacyapp.views.PreferenceListView>
-    </ScrollView>
+        tools:listitem="@+id/preferenceListItem"/>
 
 </RelativeLayout>

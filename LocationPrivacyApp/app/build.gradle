@@ -31,5 +31,6 @@ dependencies {
     compile 'com.google.android.gms:play-services:8.4.0'
     compile 'com.google.android.gms:play-services-appindexing:8.4.0'
     compile 'com.android.support:support-v4:24.2.1'
+    compile 'io.realm:android-adapters:1.4.0'
     testCompile 'junit:junit:4.12'
 }

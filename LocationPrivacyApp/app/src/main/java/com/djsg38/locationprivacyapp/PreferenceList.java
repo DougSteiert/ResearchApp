@@ -1,15 +1,20 @@
 package com.djsg38.locationprivacyapp;
 
 import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.djsg38.locationprivacyapp.models.Preference;
 import com.djsg38.locationprivacyapp.models.Session;
+
+import java.util.Random;
 
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
@@ -17,13 +22,7 @@ import io.realm.RealmChangeListener;
 public class PreferenceList extends AppCompatActivity {
 
     Realm realm;
-
-    private RealmChangeListener<Realm> realmListener = new RealmChangeListener<Realm>() {
-        @Override
-        public void onChange(Realm realm) {
-            invalidateViews();
-        }
-    };
+    Random rand;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +33,8 @@ public class PreferenceList extends AppCompatActivity {
 
         realm = Realm.getDefaultInstance();
 
+        rand = new Random();
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -42,8 +43,7 @@ public class PreferenceList extends AppCompatActivity {
                     @Override
                     public void execute(Realm realm) {
                         Session session = realm.where(Session.class).findFirst();
-                        Preference preference = realm.createObject(Preference.class);
-                        preference.setName("Steve");
+                        Preference preference = realm.createObject(Preference.class, "Doot" + String.valueOf(rand.nextInt() % 100));
                         preference.setPrivacyScale(1.0);
                         preference.setService(false);
                         session.getPreferences().add(preference);
@@ -51,6 +51,7 @@ public class PreferenceList extends AppCompatActivity {
                 }, new Realm.Transaction.OnSuccess() {
                     @Override
                     public void onSuccess() {
+                        view.postInvalidate();
                         Snackbar.make(view, "successfully added new pref", 2000).show();
                     }
                 }, new Realm.Transaction.OnError() {
@@ -69,14 +70,6 @@ public class PreferenceList extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         realm.close();
-    }
-
-    private void setupViews() {
-        return;
-    }
-
-    private void invalidateViews() {
-        return;
     }
 
 }

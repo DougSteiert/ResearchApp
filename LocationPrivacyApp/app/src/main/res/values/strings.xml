@@ -2,5 +2,15 @@
     <string name="app_name">Location Privacy App</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_running_apps">Running Apps</string>
-    <string name="title_activity_process_list">ProcessList</string>
+    <string name="title_activity_process_list">Process List</string>
+
+    <string name="preference_list_header_name">Name</string>
+    <string name="preference_list_header_rating">Rating</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="preference_name_header">Application Name</string>
+    <string name="preference_service_header">Service</string>
+    <string name="preference_scale_header">Privacy Scale</string>
+    <string name="preference_histogram_header">Histogram</string>
+
 </resources>

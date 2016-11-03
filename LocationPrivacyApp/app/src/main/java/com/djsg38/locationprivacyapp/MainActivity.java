@@ -124,16 +124,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         mockLoc.setTime(System.currentTimeMillis());
         mockLoc.setElapsedRealtimeNanos(System.nanoTime());
 
-        realm = Realm.getDefaultInstance();
-
-        Session first_session = realm.where(Session.class).findFirst();
-
-        if(first_session != null) {
-            for (com.djsg38.locationprivacyapp.models.Location loc : first_session.getRealLocations()) {
-                Log.i("Current Realm Location ", loc.toString());
-            }
-        }
-
         try {
             LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, true);
             LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, mockLoc);
@@ -160,7 +150,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         getSupportActionBar().setDisplayShowTitleEnabled(true);
 
         Realm.init(this);
-        realm = Realm.getDefaultInstance();
+        realm = Realm.getDefaultInstance();/*
+//        Comment this comment-block to essentially delete the DB.
+//        This might need to be done if models are changed.
+
+        config = new RealmConfiguration.Builder()
+                .deleteRealmIfMigrationNeeded()
+                .build();
+        realm = Realm.getInstance(config);
+        */
 
         realm.executeTransaction(new Realm.Transaction() {
             @Override
@@ -171,8 +169,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
                 Session session = realm.where(Session.class).findFirst();
                 if(session == null) realm.createObject(Session.class);
-            }
-        });
+            }});
 
         Log.i("Total sessions: ", String.valueOf(realm.where(Session.class).count()));
 
@@ -251,20 +248,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onLocationChanged(final Location location) {
-        realm = Realm.getDefaultInstance();
-
-        realm.executeTransaction(new Realm.Transaction() {
-            @Override
-            public void execute(Realm realm) {
-                Session session = realm.where(Session.class).findFirst();
-                com.djsg38.locationprivacyapp.models.Location cur = realm.createObject(com.djsg38.locationprivacyapp.models.Location.class);
-                cur.setLong(location.getLongitude());
-                cur.setLat(location.getLatitude());
-                session.getRealLocations().add(cur);
-                Log.i("Recent Location: ", session.getRealLocations().last().toString());
-            }
-        });
-
         double lat =  location.getLatitude();
         double lng = location.getLongitude();
 

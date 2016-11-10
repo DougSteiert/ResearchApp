@@ -28,9 +28,6 @@ public class GenerateNearbyCities {
         cityList = handleXML.fetchXML(url);
         randLocs = new ArrayList<>();
 
-        Log.i("Size", String.valueOf(cityList.size()));
-
-
         while(randLocs.size() < 5) {
             randIndex = rand.nextInt(cityList.size());
             if(cityList.get(randIndex).getDistance() >= 100) {

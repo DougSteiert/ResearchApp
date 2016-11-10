@@ -34,7 +34,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/genLocs"
+        android:layout_below="@+id/activateMock"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="70dp"
         android:id="@+id/latView" />
@@ -47,12 +47,4 @@
         android:layout_marginTop="20dp"
         android:id="@+id/longView" />
 
-    <Button
-        android:text="Generate Nearby Cities"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/genLocs"
-        android:layout_marginTop="51dp"
-        android:layout_below="@+id/activateMock"
-        android:layout_centerHorizontal="true" />
 </RelativeLayout>

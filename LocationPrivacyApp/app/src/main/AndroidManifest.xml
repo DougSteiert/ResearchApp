@@ -37,15 +37,6 @@
             android:enabled="true"
             android:exported="false"></service>
 
-        <activity
-            android:name=".ListRandomCities"
-            android:label="@string/title_activity_list_random_cities"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.djsg38.locationprivacyapp.MainActivity" />
-        </activity>
     </application>
 
 </manifest>

@@ -1,7 +1,12 @@
 package com.djsg38.locationprivacyapp;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -23,12 +28,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     Button showProcesses;
     Button activateMockLocs;
-    Button genLocs;
     TextView latView;
     TextView longView;
 
+    android.location.LocationListener locationListener;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
+    LocationManager locationManager;
 
     static Boolean activated = false;
 
@@ -55,24 +61,28 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 activated = true;
             } else {
                 activateMockLocs.setText("Activate Mock Locations");
-                stopService(new Intent(MainActivity.this, AnonymizationService.class));
+                anonymizationService.stopService();
                 activated = false;
+
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
             }
         }
     };
 
-    View.OnClickListener generateLocs = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Intent intent = new Intent(getApplicationContext(), ListRandomCities.class);
-            startActivity(intent);
-        }
-    };
 
     public void updateCoords(double lat, double lng) {
         latView.setText("Lat: " + String.valueOf(lat));
         longView.setText("Lng: " + String.valueOf(lng));
-
     }
 
     @Override
@@ -88,6 +98,31 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         buildGoogleApiClient();
         mGoogleApiClient.connect();
 
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        locationListener = new android.location.LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                Log.i("location", location.toString());
+                updateCoords(location.getLatitude(), location.getLongitude());
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+
         latView = (TextView) findViewById(R.id.latView);
         longView = (TextView) findViewById(R.id.longView);
 
@@ -97,8 +132,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         activateMockLocs = (Button) findViewById(R.id.activateMock);
         activateMockLocs.setOnClickListener(activateMockLocations);
 
-        genLocs = (Button) findViewById(R.id.genLocs);
-        genLocs.setOnClickListener(generateLocs);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
 
         anonymizationService = new AnonymizationService();
     }

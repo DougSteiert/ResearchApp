@@ -16,9 +16,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
 import java.util.Random;
-
-import static com.djsg38.locationprivacyapp.ListRandomCities.cityCoords;
 
 public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -31,56 +30,70 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     Random rand;
     int randIndex;
 
-    static Location previousLoc;
+    GenerateNearbyCities cityGen;
+    ArrayList<XMLAttributes> randLocs;
+    ArrayList<String> cityNames;
+    ArrayList<LatLng> cityCoords;
 
     Handler handler = new Handler();
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            setMockLocation();
-            logLocation();
+            Log.i("Handler", "hi");
+            updateMockLocation();
+
+            handler.postDelayed(this, 10000);
         }
     };
-
-    // Just log the mock location and feed to UI
-    public void logLocation() {
-        Location loc = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        previousLoc = loc;
-        Log.i("Mock Location: ", loc.toString());
-    }
 
     public LocationAnonymizer(Context context, AnonymizationService anonymizationService) {
         this.context = context;
         this.anonymizationService = anonymizationService;
 
+        cityGen = new GenerateNearbyCities();
+        randLocs = cityGen.generateLocations();
+        cityNames = new ArrayList<>();
+        cityCoords = new ArrayList<>();
+
+        for(XMLAttributes data : randLocs) {
+            cityNames.add(data.getName());
+            cityCoords.add(new LatLng(data.getLat(), data.getLng()));
+        }
+
         createLocationRequest();
         buildGoogleApiClient();
         mGoogleApiClient.connect();
-
-        initiateMockLocs();
     }
 
     // Initiate a timer for logging location
     public void startTimer() {
-        Log.i("Timer", "Started timer.");
-        handler.postDelayed(runnable, 10000);
+        Log.i("Timer", "Started");
+        runnable.run();
     }
 
     // Stop faking the location
     public void stopMockLocs() {
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-        Location loc = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
-        Log.i("MockLocs", "Deactivating mock locs");
+        Log.i("Stop", "Tried to stop");
         handler.removeCallbacks(runnable);
         LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, false);
-        Toast.makeText(context, "Your current location is: (" + String.valueOf(loc.getLatitude()) + ", " + String.valueOf(loc.getLongitude()) + ")", Toast.LENGTH_SHORT).show();
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
+    // Initialize the ability to set mock locations
     private void setMockLocation() {
+        try {
+            LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, true);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Update the current mocked location to a new value
+    private void updateMockLocation() {
         rand = new Random();
         randIndex = rand.nextInt(cityCoords.size());
+
         Location mockLoc = new Location(LocationManager.NETWORK_PROVIDER);
         mockLoc.setLatitude(cityCoords.get(randIndex).latitude);
         mockLoc.setLongitude(cityCoords.get(randIndex).longitude);
@@ -89,10 +102,7 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         mockLoc.setElapsedRealtimeNanos(System.nanoTime());
 
         try {
-            LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, true);
             LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, mockLoc);
-
-            logLocation();
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -102,6 +112,7 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     // Begin faking the location
     public void initiateMockLocs() {
         setMockLocation();
+        updateMockLocation();
         startTimer();
     }
 
@@ -109,6 +120,8 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     public void onConnected(Bundle bundle) {
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         Log.i("GoogleApiClient", "Connected");
+
+        initiateMockLocs();
     }
 
     @Override
@@ -125,12 +138,7 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     public void onLocationChanged(Location location) {
         Log.i("LocationChangedService", location.toString());
 
-        if(MainActivity.activated) {
-            initiateMockLocs();
-        }
-        else {
-            previousLoc = location;
-        }
+        updateMockLocation();
     }
 
     // Initialize a GoogleApiClient object

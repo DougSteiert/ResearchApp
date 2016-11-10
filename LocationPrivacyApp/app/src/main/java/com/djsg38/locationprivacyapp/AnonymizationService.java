@@ -26,8 +26,6 @@ import com.google.android.gms.location.LocationServices;
 
 public class AnonymizationService extends Service {
 
-    //public static final String INTENT_FILTER = "AnonymizationIntent";
-
     LocationAnonymizer locationAnonymizer;
 
     @Override
@@ -52,10 +50,12 @@ public class AnonymizationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "Anonymization Started", Toast.LENGTH_SHORT).show();
         showNotif();
+
         return Service.START_STICKY;
     }
 
-    private void stopService() {
+    // Stop the service from running
+    public void stopService() {
         locationAnonymizer.stopMockLocs();
         this.stopService(new Intent(getBaseContext(), AnonymizationService.class));
     }

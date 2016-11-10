@@ -38,11 +38,14 @@ public class AnonymizationService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        stopService();
         Toast.makeText(this, "Anonymization Service Stopped", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public IBinder onBind(Intent intent) {
+        Toast.makeText(this, "Anonymization Started", Toast.LENGTH_SHORT).show();
+        showNotif();
         return null;
     }
 
@@ -57,7 +60,6 @@ public class AnonymizationService extends Service {
     // Stop the service from running
     public void stopService() {
         locationAnonymizer.stopMockLocs();
-        this.stopService(new Intent(getBaseContext(), AnonymizationService.class));
     }
 
     private void showNotif() {

@@ -1,11 +1,14 @@
 package com.djsg38.locationprivacyapp;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -36,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     GoogleApiClient mGoogleApiClient;
     LocationManager locationManager;
 
+    ServiceConnection serviceConnection;
+
     static Boolean activated = false;
 
     AnonymizationService anonymizationService;
@@ -57,11 +62,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             if (!activated) {
                 activateMockLocs.setText("Deactivate Mock Locations");
-                startService(new Intent(MainActivity.this, AnonymizationService.class));
+                bindService(new Intent(MainActivity.this, AnonymizationService.class), serviceConnection, Context.BIND_AUTO_CREATE);
                 activated = true;
             } else {
                 activateMockLocs.setText("Activate Mock Locations");
-                anonymizationService.stopService();
+                unbindService(serviceConnection);
                 activated = false;
 
                 if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -97,6 +102,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         createLocationRequest();
         buildGoogleApiClient();
         mGoogleApiClient.connect();
+
+        serviceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+
+            }
+        };
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 

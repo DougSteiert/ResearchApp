@@ -73,7 +73,6 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
 
     // Stop faking the location
     public void stopMockLocs() {
-        Log.i("Stop", "Tried to stop");
         handler.removeCallbacks(runnable);
         LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, false);
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);

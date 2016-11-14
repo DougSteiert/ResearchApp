@@ -2,8 +2,8 @@ package com.djsg38.locationprivacyapp;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +15,10 @@ import android.widget.ListView;
 import com.djsg38.locationprivacyapp.models.Preference;
 import com.djsg38.locationprivacyapp.models.Session;
 
-import java.util.zip.Inflater;
+import java.util.Random;
 
 import io.realm.Realm;
 import io.realm.RealmList;
-import io.realm.RealmResults;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -27,6 +26,7 @@ import io.realm.RealmResults;
 public class PreferenceListFragment extends Fragment {
 
     private Realm realm;
+    private Random rand;
 
     public PreferenceListFragment() {
     }
@@ -42,6 +42,35 @@ public class PreferenceListFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         realm = Realm.getDefaultInstance();
 
+        rand = new Random();
+
+        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.floatingActionButton);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                realm.executeTransactionAsync(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        Session session = realm.where(Session.class).findFirst();
+                        Preference preference = realm.createObject(Preference.class, "Doot" + String.valueOf(rand.nextInt() % 100));
+                        preference.setPrivacyScale(1.0);
+                        preference.setService(false);
+                        session.getPreferences().add(preference);
+                    }
+                }, new Realm.Transaction.OnSuccess() {
+                    @Override
+                    public void onSuccess() {
+                        Snackbar.make(view, "successfully added new pref", 2000).show();
+                    }
+                }, new Realm.Transaction.OnError() {
+                    @Override
+                    public void onError(Throwable error) {
+                        error.printStackTrace();
+                    }
+                });
+            }
+        });
+
         ListView preferenceList = (ListView) getActivity().findViewById(R.id.preferenceList);
         RealmList<Preference> preferences = realm.where(Session.class).findFirst().getPreferences();
         final ListAdapter preferenceListAdapter = new PreferenceListAdapter(this.getContext(), preferences);
@@ -54,7 +83,7 @@ public class PreferenceListFragment extends Fragment {
 
                 FragmentTransaction fmt = getFragmentManager().beginTransaction();
                 Fragment pfm = PreferenceFragment.newInstance("ayy", "lmao");
-                fmt.replace(R.id.fragment_content, pfm);
+                fmt.replace(R.id.content_preference_list, pfm);
                 fmt.addToBackStack(null);
                 fmt.commit();
 
@@ -66,7 +95,7 @@ public class PreferenceListFragment extends Fragment {
                 }, new Realm.Transaction.OnSuccess() {
                     @Override
                     public void onSuccess() {
-                        Snackbar.make(getActivity().findViewById(R.id.preference_list_container), "preference chosen", 1500).show();
+                        Snackbar.make(getActivity().findViewById(R.id.content_preference_list), "preference chosen", 1500).show();
                     }
                 }, new Realm.Transaction.OnError() {
                     @Override

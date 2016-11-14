@@ -1,5 +1,6 @@
 package com.djsg38.locationprivacyapp.models;
 
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -13,7 +14,7 @@ public class Preference extends RealmObject {
 
     public boolean isService;
     public double privacyScale;
-    public Histogram before, after;
+    public RealmList<Location> before,after;
 
     public String getName() {
         return name;
@@ -39,19 +40,19 @@ public class Preference extends RealmObject {
         this.privacyScale = privacyScale;
     }
 
-    public Histogram getBefore() {
+    public RealmList<Location> getBefore() {
         return before;
     }
 
-    public void setBefore(Histogram before) {
+    public void setBefore(RealmList<Location> before) {
         this.before = before;
     }
 
-    public Histogram getAfter() {
+    public RealmList<Location> getAfter() {
         return after;
     }
 
-    public void setAfter(Histogram after) {
+    public void setAfter(RealmList<Location> after) {
         this.after = after;
     }
 

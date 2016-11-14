@@ -13,21 +13,6 @@
     tools:context="com.djsg38.locationprivacyapp.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/activateMock"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="70dp"
-        android:id="@+id/latView" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/latView"
-        android:layout_alignStart="@+id/latView"
-        android:layout_marginTop="20dp"
-        android:id="@+id/longView" />
 
     <Button
         android:text="List Running Applications"
@@ -53,4 +38,21 @@
         android:id="@+id/activateMock"
         android:layout_below="@+id/preferenceList"
         android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/activateMock"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="70dp"
+        android:id="@+id/latView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/latView"
+        android:layout_alignStart="@+id/latView"
+        android:layout_marginTop="20dp"
+        android:id="@+id/longView" />
+
 </RelativeLayout>

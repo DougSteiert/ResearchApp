@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     }
 
     @Override
-    public void onLocationChanged(final Location location) {
+    public void onLocationChanged(Location location) {
         double lat =  location.getLatitude();
         double lng = location.getLongitude();
 

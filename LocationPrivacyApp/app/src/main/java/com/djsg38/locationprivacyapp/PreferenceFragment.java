@@ -2,7 +2,6 @@ package com.djsg38.locationprivacyapp;
 
 import android.app.FragmentManager;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
@@ -11,13 +10,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.djsg38.locationprivacyapp.models.Preference;
 import com.djsg38.locationprivacyapp.models.Session;
-
-import java.util.prefs.PreferenceChangeEvent;
 
 import io.realm.Realm;
 

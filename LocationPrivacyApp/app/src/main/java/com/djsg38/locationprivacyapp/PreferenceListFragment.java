@@ -48,26 +48,12 @@ public class PreferenceListFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-                realm.executeTransactionAsync(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-                        Session session = realm.where(Session.class).findFirst();
-                        Preference preference = realm.createObject(Preference.class, "Doot" + String.valueOf(rand.nextInt() % 100));
-                        preference.setPrivacyScale(1.0);
-                        preference.setService(false);
-                        session.getPreferences().add(preference);
-                    }
-                }, new Realm.Transaction.OnSuccess() {
-                    @Override
-                    public void onSuccess() {
-                        Snackbar.make(view, "successfully added new pref", 2000).show();
-                    }
-                }, new Realm.Transaction.OnError() {
-                    @Override
-                    public void onError(Throwable error) {
-                        error.printStackTrace();
-                    }
-                });
+                FragmentTransaction fmt = getFragmentManager().beginTransaction();
+                Fragment pfm = PreferenceFragment.newInstance("");
+                fmt.replace(R.id.content_preference_list, pfm);
+                fmt.addToBackStack(null);
+                fmt.commit();
+                Snackbar.make(view, "adding  new pref", 2000).show();
             }
         });
 
@@ -86,23 +72,6 @@ public class PreferenceListFragment extends Fragment {
                 fmt.replace(R.id.content_preference_list, pfm);
                 fmt.addToBackStack(null);
                 fmt.commit();
-
-                realm.executeTransactionAsync(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-                        realm.where(Preference.class).equalTo("name", preferenceName).findAll().deleteAllFromRealm();
-                    }
-                }, new Realm.Transaction.OnSuccess() {
-                    @Override
-                    public void onSuccess() {
-                        Snackbar.make(getActivity().findViewById(R.id.content_preference_list), "preference chosen", 1500).show();
-                    }
-                }, new Realm.Transaction.OnError() {
-                    @Override
-                    public void onError(Throwable error) {
-                        error.printStackTrace();
-                    }
-                });
             }
         });
     }

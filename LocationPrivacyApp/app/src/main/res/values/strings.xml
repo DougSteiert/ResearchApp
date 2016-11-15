@@ -13,4 +13,5 @@
     <string name="preference_scale_header">Privacy Scale</string>
     <string name="preference_histogram_header">Histogram</string>
     <string name="title_activity_list_random_cities">Random Cities</string>
+    <string name="no_name_available">No Name Available</string>
 </resources>

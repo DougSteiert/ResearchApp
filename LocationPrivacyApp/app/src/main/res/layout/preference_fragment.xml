@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
-            android:text="No Name Available"
+            android:text="@string/no_name_available"
             android:ems="10"
             android:id="@+id/applicationNameField"
             android:layout_alignParentStart="false"

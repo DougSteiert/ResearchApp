@@ -13,8 +13,8 @@ public class PreferenceList
 
     Realm realm;
 
-    public void onFragmentInteraction(int position) {
-        return;
+    public void onFragmentInteraction(Realm realm) {
+
     }
 
     @Override

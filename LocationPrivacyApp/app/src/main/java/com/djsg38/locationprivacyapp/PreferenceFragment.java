@@ -1,5 +1,6 @@
 package com.djsg38.locationprivacyapp;
 
+import android.app.FragmentManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -7,6 +8,16 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.djsg38.locationprivacyapp.models.Preference;
+import com.djsg38.locationprivacyapp.models.Session;
+
+import java.util.prefs.PreferenceChangeEvent;
 
 import io.realm.Realm;
 
@@ -20,16 +31,16 @@ import io.realm.Realm;
  * create an instance of this fragment.
  */
 public class PreferenceFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String PREFERENCE_NAME = "preference_name";
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private String preference_name;
 
     private OnFragmentInteractionListener mListener;
+
+    EditText edit_name;
+    SeekBar edit_privacy_scale;
+    Button save,delete;
 
     private Realm realm;
 
@@ -41,16 +52,14 @@ public class PreferenceFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param preference_id Parameter 1.
      * @return A new instance of fragment PreferenceFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static Fragment newInstance(String param1, String param2) {
+    public static Fragment newInstance(String preference_id) {
         PreferenceFragment fragment = new PreferenceFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(PREFERENCE_NAME, preference_id);
         fragment.setArguments(args);
         return fragment;
     }
@@ -58,26 +67,73 @@ public class PreferenceFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        realm = Realm.getDefaultInstance();
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.preference_fragment, container, false);
+        realm = Realm.getDefaultInstance();
+        View view = inflater.inflate(R.layout.preference_fragment, container, false);
+        edit_name = (EditText) view.findViewById(R.id.applicationNameField);
+        edit_privacy_scale = (SeekBar) view.findViewById(R.id.privacyScaleBar);
+        save = (Button) view.findViewById(R.id.saveButton);
+        delete = (Button) view.findViewById(R.id.deleteButton);
+
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onSavePressed((EditText) v.getRootView().findViewById(edit_name.getId()),
+                        (SeekBar) v.getRootView().findViewById(edit_privacy_scale.getId()));
+            }
+        });
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onDeletePressed();
+            }
+        });
+
+        if (getArguments() != null) {
+            preference_name = getArguments().getString(PREFERENCE_NAME);
+            Preference preference = realm.where(Preference.class).equalTo("name", preference_name).findFirst();
+            if(preference != null) {
+                edit_name.setText(preference.getName());
+                edit_privacy_scale.setProgress((int) preference.getPrivacyScale());
+            }
+        }
+        return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(int position) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(position);
+    public void onSavePressed(EditText edit_name, SeekBar edit_privacy_scale) {
+        realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        Session session = realm.where(Session.class).findFirst();
+        Preference preference = session.getPreferences().where()
+                .equalTo("name", preference_name).findFirst();
+        if(preference == null) {
+            preference = new Preference();
+            preference.setName(edit_name.getText().toString());
+            preference.setPrivacyScale(edit_privacy_scale.getProgress());
+            session.getPreferences().add(preference);
         }
+        else {
+            edit_name.setText(preference.getName());
+            preference.setPrivacyScale(edit_privacy_scale.getProgress());
+        }
+        realm.commitTransaction();
+        preference_name = preference.getName();
+        Toast.makeText(getContext(), "Saved " + preference_name, Toast.LENGTH_LONG).show();
+    }
+
+    public void onDeletePressed() {
+        realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.where(Session.class).findFirst().getPreferences()
+                .where().equalTo("name", preference_name)
+                .findAll().deleteAllFromRealm();
+        realm.commitTransaction();
+        Toast.makeText(getContext(), "Deleted " + preference_name, Toast.LENGTH_LONG).show();
+        getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 
     @Override
@@ -110,6 +166,6 @@ public class PreferenceFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(int position);
+        void onFragmentInteraction(Realm realm);
     }
 }

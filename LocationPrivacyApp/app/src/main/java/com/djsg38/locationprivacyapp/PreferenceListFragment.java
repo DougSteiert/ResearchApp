@@ -82,7 +82,7 @@ public class PreferenceListFragment extends Fragment {
                 final String preferenceName = preference.getName();
 
                 FragmentTransaction fmt = getFragmentManager().beginTransaction();
-                Fragment pfm = PreferenceFragment.newInstance("ayy", "lmao");
+                Fragment pfm = PreferenceFragment.newInstance(preferenceName);
                 fmt.replace(R.id.content_preference_list, pfm);
                 fmt.addToBackStack(null);
                 fmt.commit();

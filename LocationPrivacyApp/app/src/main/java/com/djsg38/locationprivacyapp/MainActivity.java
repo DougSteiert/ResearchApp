@@ -1,13 +1,13 @@
 package com.djsg38.locationprivacyapp;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -21,16 +21,21 @@ import android.widget.Button;
 import android.location.Location;
 import android.widget.TextView;
 
+import com.djsg38.locationprivacyapp.models.Session;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     Button showProcesses;
     Button activateMockLocs;
+    private Button showPreferences;
     TextView latView;
     TextView longView;
 
@@ -38,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     LocationManager locationManager;
+
+    Realm realm;
+    RealmConfiguration config;
 
     ServiceConnection serviceConnection;
 
@@ -84,6 +92,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     };
 
+    View.OnClickListener listPreferences = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(getApplicationContext(), PreferenceList.class);
+            startActivity(intent);
+        }
+    };
 
     public void updateCoords(double lat, double lng) {
         latView.setText("Lat: " + String.valueOf(lat));
@@ -93,11 +108,36 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayShowTitleEnabled(true);
+
+        Realm.init(this);
+        realm = Realm.getDefaultInstance();/*
+//        Comment this comment-block to essentially delete the DB.
+//        This might need to be done if models are changed.
+
+        config = new RealmConfiguration.Builder()
+                .deleteRealmIfMigrationNeeded()
+                .build();
+        realm = Realm.getInstance(config);
+        */
+
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                long sessionCount = realm.where(Session.class).count();
+                if(sessionCount > 1) {
+                    realm.deleteAll();
+                }
+                Session session = realm.where(Session.class).findFirst();
+                if(session == null) realm.createObject(Session.class);
+            }});
+
+        Log.i("Total sessions: ", String.valueOf(realm.where(Session.class).count()));
 
         createLocationRequest();
         buildGoogleApiClient();
@@ -149,6 +189,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         activateMockLocs = (Button) findViewById(R.id.activateMock);
         activateMockLocs.setOnClickListener(activateMockLocations);
 
+        showPreferences = (Button) findViewById(R.id.preferenceList);
+        showPreferences.setOnClickListener(listPreferences);
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -162,6 +205,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
 
         anonymizationService = new AnonymizationService();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        realm.close();
     }
 
     @Override

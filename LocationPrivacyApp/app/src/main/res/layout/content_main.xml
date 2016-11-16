@@ -13,23 +13,31 @@
     tools:context="com.djsg38.locationprivacyapp.MainActivity"
     tools:showIn="@layout/activity_main">
 
+
     <Button
         android:text="List Running Applications"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
         android:layout_marginTop="42dp"
-        android:id="@+id/listApps" />
+        android:id="@+id/listApps"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:text="Preference List"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/preferenceList"
+        android:layout_below="@+id/listApps"
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:text="Activate Mock Locations"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/listApps"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="60dp"
-        android:id="@+id/activateMock" />
+        android:id="@+id/activateMock"
+        android:layout_below="@+id/preferenceList"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"

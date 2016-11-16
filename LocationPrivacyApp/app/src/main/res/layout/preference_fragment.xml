@@ -1,0 +1,92 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.djsg38.locationprivacyapp.PreferenceFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:text="@string/preference_name_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/applicationName"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            android:padding="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="5dp" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:text="@string/no_name_available"
+            android:ems="10"
+            android:id="@+id/applicationNameField"
+            android:layout_alignParentStart="false"
+            android:layout_below="@+id/applicationName"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp" />
+
+        <TextView
+            android:text="@string/preference_service_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/service"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            android:layout_below="@+id/applicationNameField"
+            android:layout_margin="5dp"
+            android:padding="5dp" />
+
+        <TextView
+            android:text="@string/preference_scale_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/privacyScale"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            android:layout_below="@+id/service"
+            android:layout_margin="5dp"
+            android:padding="5dp" />
+
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/privacyScaleBar"
+            style="@style/Widget.AppCompat.SeekBar"
+            android:max="20"
+            android:progress="10"
+            android:layout_below="@+id/privacyScale" />
+
+        <Button
+            android:text="Delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/deleteButton"
+            android:layout_marginLeft="50dp"
+            android:layout_below="@+id/privacyScaleBar"
+            android:layout_alignStart="@+id/applicationNameField"
+            android:layout_marginTop="100dp" />
+
+        <Button
+            android:text="Save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="50dp"
+            android:id="@+id/saveButton"
+            android:layout_alignBaseline="@+id/deleteButton"
+            android:layout_alignBottom="@+id/deleteButton"
+            android:layout_alignEnd="@+id/applicationNameField"
+            android:layout_marginRight="50dp" />
+
+    </RelativeLayout>
+
+</FrameLayout>

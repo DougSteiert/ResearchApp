@@ -8,7 +8,7 @@ import io.realm.RealmObject;
  */
 
 public class Session extends RealmObject {
-    public RealmList<Location> realLocations, ;
+    public RealmList<Location> realLocations;
     public RealmList<Preference> preferences;
 
     public RealmList<Preference> getPreferences() {

@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.djsg38.locationprivacyapp.models.Session;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -18,6 +19,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.Random;
+
+import io.realm.Realm;
 
 public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -29,6 +32,7 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     MainActivity mainActivity;
     Random rand;
     int randIndex;
+    private Realm realm;
 
     GenerateNearbyCities cityGen;
     ArrayList<XMLAttributes> randLocs;
@@ -63,6 +67,28 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         createLocationRequest();
         buildGoogleApiClient();
         mGoogleApiClient.connect();
+    }
+
+    public void addNewLocation(Location location) {
+        if(realm == null) realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        com.djsg38.locationprivacyapp.models.Location new_loc = new com.djsg38.locationprivacyapp.models.Location();
+        new_loc.setLat(location.getLatitude());
+        new_loc.setLong(location.getLongitude());
+        Session session = realm.where(Session.class).findFirst();
+        session.getRealLocations().add(new_loc);
+        // maybe trim list when it gets large
+        if(session.getRealLocations().size() > 50) {
+            for(com.djsg38.locationprivacyapp.models.Location loc : session.getRealLocations()) {
+                Log.i("Locations tracked: ",
+                        String.valueOf(loc.getLat()) + ", " + String.valueOf(loc.getLong()));
+            }
+            int locs = session.getRealLocations().size();
+            while(locs-- > 25) {
+                session.getRealLocations().deleteLastFromRealm();
+            }
+        }
+        realm.commitTransaction();
     }
 
     // Initiate a timer for logging location
@@ -102,6 +128,7 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
 
         try {
             LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, mockLoc);
+            addNewLocation(mockLoc);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -136,6 +163,8 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     @Override
     public void onLocationChanged(Location location) {
         Log.i("LocationChangedService", location.toString());
+
+        addNewLocation(location);
 
         updateMockLocation();
     }

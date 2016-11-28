@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     realm.deleteAll();
                 }
                 Session session = realm.where(Session.class).findFirst();
+                session.getRealLocations().deleteAllFromRealm();
                 if(session == null) realm.createObject(Session.class);
             }});
 

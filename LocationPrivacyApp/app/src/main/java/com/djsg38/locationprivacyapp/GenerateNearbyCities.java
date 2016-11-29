@@ -12,6 +12,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Random;
+import java.lang.Math;
+
+import com.djsg38.locationprivacyapp.models.Location;
+import com.djsg38.locationprivacyapp.models.Session;
+
+import io.realm.RealmList;
 
 public class GenerateNearbyCities {
 
@@ -36,6 +42,25 @@ public class GenerateNearbyCities {
         }
 
         return randLocs;
+    }
+
+    // Performs the Euclidean distances on the last two known real locations
+    public double calculateDistanceBetweenCities(RealmList<Location> realLocations) {
+        double distanceTraveled = 0;
+
+        int sizeofLocations = realLocations.size();
+
+        double firstSub = (realLocations.get(sizeofLocations - 2).getLat() - realLocations.get(sizeofLocations - 1).getLat());
+        double secondSub = (realLocations.get(sizeofLocations - 2).getLong() - realLocations.get(sizeofLocations - 1).getLong());
+
+        double firstPower = Math.pow(firstSub, 2);
+        double secondPower = Math.pow(secondSub, 2);
+
+        double addition = firstPower + secondPower;
+
+        distanceTraveled = Math.sqrt(addition);
+
+        return addition;
     }
 
     public class HandleXML {

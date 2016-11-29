@@ -1,11 +1,14 @@
 package com.djsg38.locationprivacyapp;
 
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -59,7 +62,7 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         cityNames = new ArrayList<>();
         cityCoords = new ArrayList<>();
 
-        for(XMLAttributes data : randLocs) {
+        for (XMLAttributes data : randLocs) {
             cityNames.add(data.getName());
             cityCoords.add(new LatLng(data.getLat(), data.getLng()));
         }
@@ -70,7 +73,7 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     }
 
     public void addNewLocation(Location location) {
-        if(realm == null) realm = Realm.getDefaultInstance();
+        if (realm == null) realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         com.djsg38.locationprivacyapp.models.Location new_loc = new com.djsg38.locationprivacyapp.models.Location();
         new_loc.setLat(location.getLatitude());
@@ -78,13 +81,13 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         Session session = realm.where(Session.class).findFirst();
         session.getRealLocations().add(new_loc);
         // maybe trim list when it gets large
-        if(session.getRealLocations().size() > 50) {
-            for(com.djsg38.locationprivacyapp.models.Location loc : session.getRealLocations()) {
+        if (session.getRealLocations().size() > 50) {
+            for (com.djsg38.locationprivacyapp.models.Location loc : session.getRealLocations()) {
                 Log.i("Locations tracked: ",
                         String.valueOf(loc.getLat()) + ", " + String.valueOf(loc.getLong()));
             }
             int locs = session.getRealLocations().size();
-            while(locs-- > 25) {
+            while (locs-- > 25) {
                 session.getRealLocations().deleteLastFromRealm();
             }
         }
@@ -100,6 +103,16 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     // Stop faking the location
     public void stopMockLocs() {
         handler.removeCallbacks(runnable);
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, false);
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
@@ -107,9 +120,18 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     // Initialize the ability to set mock locations
     private void setMockLocation() {
         try {
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
             LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, true);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -127,10 +149,19 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         mockLoc.setElapsedRealtimeNanos(System.nanoTime());
 
         try {
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
             LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, mockLoc);
             addNewLocation(mockLoc);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -144,6 +175,16 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
 
     @Override
     public void onConnected(Bundle bundle) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         Log.i("GoogleApiClient", "Connected");
 

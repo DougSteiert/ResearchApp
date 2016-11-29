@@ -130,13 +130,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void execute(Realm realm) {
                 long sessionCount = realm.where(Session.class).count();
-                if(sessionCount > 1) {
+                if (sessionCount > 1) {
                     realm.deleteAll();
                 }
                 Session session = realm.where(Session.class).findFirst();
                 session.getRealLocations().deleteAllFromRealm();
-                if(session == null) realm.createObject(Session.class);
-            }});
+                if (session == null) realm.createObject(Session.class);
+            }
+        });
 
         Log.i("Total sessions: ", String.valueOf(realm.where(Session.class).count()));
 
@@ -256,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onLocationChanged(Location location) {
-        double lat =  location.getLatitude();
+        double lat = location.getLatitude();
         double lng = location.getLongitude();
 
         latView.setText("Lat: " + String.valueOf(lat));
@@ -266,6 +267,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onConnected(Bundle bundle) {
         //do things related to location access.
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 

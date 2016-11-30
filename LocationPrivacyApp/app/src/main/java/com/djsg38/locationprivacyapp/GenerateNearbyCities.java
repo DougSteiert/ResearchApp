@@ -18,6 +18,7 @@ import com.djsg38.locationprivacyapp.models.Location;
 import com.djsg38.locationprivacyapp.models.Session;
 
 import io.realm.RealmList;
+import io.realm.Realm;
 
 public class GenerateNearbyCities {
 
@@ -25,6 +26,9 @@ public class GenerateNearbyCities {
     ArrayList<XMLAttributes> randLocs;
     HandleXML handleXML;
     Random rand;
+
+    private Realm realm;
+    Session session = realm.where(Session.class).findFirst();
 
     public ArrayList<XMLAttributes> generateLocations() {
         String url = "http://api.geonames.org/findNearbyPlaceName?lat=37.951424&lng=-91.768959&radius=150&maxRows=99999&username=dsteiert";
@@ -34,24 +38,38 @@ public class GenerateNearbyCities {
         cityList = handleXML.fetchXML(url);
         randLocs = new ArrayList<>();
 
+        double realDistanceMoved = calculateDistanceBetweenCities(session.getRealLocations());
+        double mockDistanceMoved = calculateDistanceBetweenCities(session.getMockLocations());
+
+        int mockSize = session.getMockLocations().size();
+
         while(randLocs.size() < 5) {
             randIndex = rand.nextInt(cityList.size());
+
             if(cityList.get(randIndex).getDistance() >= 100) {
-                randLocs.add(cityList.get(randIndex));
+                Location tempLoc = null;
+                tempLoc.setLat(cityList.get(randIndex).getLat());
+                tempLoc.setLong(cityList.get(randIndex).getLng());
+                if(mockSize > 1) {
+                    double tempDistance = calculateFakeDistance(tempLoc, session.getMockLocations().get(mockSize - 1));
+                    if(tempDistance >= (realDistanceMoved - 2) || tempDistance <= (realDistanceMoved + 2)) {
+                        randLocs.add(cityList.get(randIndex));
+                    }
+                }
+                else {
+                    randLocs.add(cityList.get(randIndex));
+                }
             }
         }
 
         return randLocs;
     }
 
-    // Performs the Euclidean distances on the last two known real locations
-    public double calculateDistanceBetweenCities(RealmList<Location> realLocations) {
+    public double calculateFakeDistance(Location q, Location p) {
         double distanceTraveled = 0;
 
-        int sizeofLocations = realLocations.size();
-
-        double firstSub = (realLocations.get(sizeofLocations - 2).getLat() - realLocations.get(sizeofLocations - 1).getLat());
-        double secondSub = (realLocations.get(sizeofLocations - 2).getLong() - realLocations.get(sizeofLocations - 1).getLong());
+        double firstSub = (q.getLat() - p.getLat());
+        double secondSub = (q.getLong() - p.getLong());
 
         double firstPower = Math.pow(firstSub, 2);
         double secondPower = Math.pow(secondSub, 2);
@@ -60,7 +78,30 @@ public class GenerateNearbyCities {
 
         distanceTraveled = Math.sqrt(addition);
 
-        return addition;
+        return distanceTraveled;
+    }
+
+    // Performs the Euclidean distances on the last two known real locations
+    public double calculateDistanceBetweenCities(RealmList<Location> locations) {
+        double distanceTraveled = 0;
+
+        int sizeofLocations = locations.size();
+
+        if(sizeofLocations > 1) {
+            double firstSub = (locations.get(sizeofLocations - 2).getLat() - locations.get(sizeofLocations - 1).getLat());
+            double secondSub = (locations.get(sizeofLocations - 2).getLong() - locations.get(sizeofLocations - 1).getLong());
+
+            double firstPower = Math.pow(firstSub, 2);
+            double secondPower = Math.pow(secondSub, 2);
+
+            double addition = firstPower + secondPower;
+
+            distanceTraveled = Math.sqrt(addition);
+
+            return distanceTraveled;
+        }
+
+        return 0;
     }
 
     public class HandleXML {

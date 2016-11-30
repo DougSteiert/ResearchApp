@@ -9,6 +9,7 @@ import io.realm.RealmObject;
 
 public class Session extends RealmObject {
     public RealmList<Location> realLocations;
+    public RealmList<Location> mockLocations;
     public RealmList<Preference> preferences;
 
     public RealmList<Preference> getPreferences() {
@@ -21,6 +22,10 @@ public class Session extends RealmObject {
 
     public RealmList<Location> getRealLocations() {
         return realLocations;
+    }
+
+    public RealmList<Location> getMockLocations() {
+        return mockLocations;
     }
 
     public void setRealLocations(RealmList<Location> realLocations) {

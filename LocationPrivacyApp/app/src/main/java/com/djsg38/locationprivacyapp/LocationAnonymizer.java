@@ -1,6 +1,5 @@
 package com.djsg38.locationprivacyapp;
 
-
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -72,7 +71,7 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         mGoogleApiClient.connect();
     }
 
-    public void addNewLocation(Location location) {
+    public void addNewRealLocation(Location location) {
         if (realm == null) realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         com.djsg38.locationprivacyapp.models.Location new_loc = new com.djsg38.locationprivacyapp.models.Location();
@@ -89,6 +88,28 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
             int locs = session.getRealLocations().size();
             while (locs-- > 25) {
                 session.getRealLocations().deleteLastFromRealm();
+            }
+        }
+        realm.commitTransaction();
+    }
+
+    public void addNewMockLocation(Location location) {
+        if (realm == null) realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        com.djsg38.locationprivacyapp.models.Location new_loc = new com.djsg38.locationprivacyapp.models.Location();
+        new_loc.setLat(location.getLatitude());
+        new_loc.setLong(location.getLongitude());
+        Session session = realm.where(Session.class).findFirst();
+        session.getMockLocations().add(new_loc);
+        // maybe trim list when it gets large
+        if (session.getMockLocations().size() > 50) {
+            for (com.djsg38.locationprivacyapp.models.Location loc : session.getMockLocations()) {
+                Log.i("Locations tracked: ",
+                        String.valueOf(loc.getLat()) + ", " + String.valueOf(loc.getLong()));
+            }
+            int locs = session.getMockLocations().size();
+            while (locs-- > 25) {
+                session.getMockLocations().deleteLastFromRealm();
             }
         }
         realm.commitTransaction();
@@ -160,7 +181,7 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
                 return;
             }
             LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, mockLoc);
-            addNewLocation(mockLoc);
+            addNewMockLocation(mockLoc);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -205,7 +226,7 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     public void onLocationChanged(Location location) {
         Log.i("LocationChangedService", location.toString());
 
-        addNewLocation(location);
+        addNewMockLocation(location);
 
         updateMockLocation();
     }

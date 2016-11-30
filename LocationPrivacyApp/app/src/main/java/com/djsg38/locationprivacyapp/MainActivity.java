@@ -47,11 +47,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     Realm realm;
     RealmConfiguration config;
 
+    Session session;
+
     ServiceConnection serviceConnection;
 
     static Boolean activated = false;
 
     AnonymizationService anonymizationService;
+    LocationAnonymizer locationAnonymizer;
 
     // Wait for click on "List Running Applications" button and create new activity
     View.OnClickListener listRunningApps = new View.OnClickListener() {
@@ -69,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             Log.i("MockLocs", "Clicked mock Locs.");
 
             if (!activated) {
+                locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
                 activateMockLocs.setText("Deactivate Mock Locations");
                 bindService(new Intent(MainActivity.this, AnonymizationService.class), serviceConnection, Context.BIND_AUTO_CREATE);
                 activated = true;
@@ -88,6 +92,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     return;
                 }
                 locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+
+                for(com.djsg38.locationprivacyapp.models.Location loc : session.getMockLocations()) {
+                    Log.i("Fake tracked: ",
+                            String.valueOf(loc.getLat()) + ", " + String.valueOf(loc.getLong()));
+                }
+
+                for(com.djsg38.locationprivacyapp.models.Location loc : session.getRealLocations()) {
+                    Log.i("Real tracked: ",
+                            String.valueOf(loc.getLat()) + ", " + String.valueOf(loc.getLong()));
+                }
             }
         }
     };
@@ -157,12 +171,16 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         };
 
+        anonymizationService = new AnonymizationService();
+        locationAnonymizer = new LocationAnonymizer(this, anonymizationService);
+
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         locationListener = new android.location.LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 Log.i("location", location.toString());
+                locationAnonymizer.addNewRealLocation(location);
                 updateCoords(location.getLatitude(), location.getLongitude());
             }
 
@@ -205,8 +223,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             return;
         }
         locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
-
-        anonymizationService = new AnonymizationService();
     }
 
     @Override
@@ -259,6 +275,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     public void onLocationChanged(Location location) {
         double lat = location.getLatitude();
         double lng = location.getLongitude();
+
+        locationAnonymizer.addNewRealLocation(location);
 
         latView.setText("Lat: " + String.valueOf(lat));
         longView.setText("Lng: " + String.valueOf(lng));

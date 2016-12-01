@@ -28,7 +28,7 @@ public class GenerateNearbyCities {
     Random rand;
 
     private Realm realm;
-    Session session = realm.where(Session.class).findFirst();
+    Session session;
 
     public ArrayList<XMLAttributes> generateLocations() {
         String url = "http://api.geonames.org/findNearbyPlaceName?lat=37.951424&lng=-91.768959&radius=150&maxRows=99999&username=dsteiert";
@@ -37,6 +37,9 @@ public class GenerateNearbyCities {
         handleXML = new HandleXML();
         cityList = handleXML.fetchXML(url);
         randLocs = new ArrayList<>();
+
+        if(realm == null) realm = Realm.getDefaultInstance();
+        if(session == null) session = realm.where(Session.class).findFirst();
 
         double realDistanceMoved = calculateDistanceBetweenCities(session.getRealLocations());
         double mockDistanceMoved = calculateDistanceBetweenCities(session.getMockLocations());
@@ -47,7 +50,8 @@ public class GenerateNearbyCities {
             randIndex = rand.nextInt(cityList.size());
 
             if(cityList.get(randIndex).getDistance() >= 100) {
-                Location tempLoc = null;
+                //tempLoc can't be null, needs to be a Location of some kind
+                Location tempLoc = new Location();
                 tempLoc.setLat(cityList.get(randIndex).getLat());
                 tempLoc.setLong(cityList.get(randIndex).getLng());
                 if(mockSize > 1) {
@@ -61,6 +65,8 @@ public class GenerateNearbyCities {
                 }
             }
         }
+
+        realm.close();
 
         return randLocs;
     }

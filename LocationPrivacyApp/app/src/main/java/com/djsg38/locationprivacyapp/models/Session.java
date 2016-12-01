@@ -24,12 +24,16 @@ public class Session extends RealmObject {
         return realLocations;
     }
 
+    public void setRealLocations(RealmList<Location> realLocations) {
+        this.realLocations = realLocations;
+    }
+
     public RealmList<Location> getMockLocations() {
         return mockLocations;
     }
 
-    public void setRealLocations(RealmList<Location> realLocations) {
-        this.realLocations = realLocations;
+    public void setMockLocations(RealmList<Location> mockLocations) {
+        this.mockLocations = mockLocations;
     }
 
 }

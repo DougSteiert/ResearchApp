@@ -47,8 +47,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     Realm realm;
     RealmConfiguration config;
 
-    Session session;
-
     ServiceConnection serviceConnection;
 
     static Boolean activated = false;
@@ -93,6 +91,11 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                 }
                 locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
 
+                //necessary because we are no longer in the scope of our activity
+                Realm realm = Realm.getDefaultInstance();
+
+                Session session = realm.where(Session.class).findFirst();
+
                 for(com.djsg38.locationprivacyapp.models.Location loc : session.getMockLocations()) {
                     Log.i("Fake tracked: ",
                             String.valueOf(loc.getLat()) + ", " + String.valueOf(loc.getLong()));
@@ -102,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     Log.i("Real tracked: ",
                             String.valueOf(loc.getLat()) + ", " + String.valueOf(loc.getLong()));
                 }
+                realm.close();
             }
         }
     };
@@ -148,7 +152,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
                     realm.deleteAll();
                 }
                 Session session = realm.where(Session.class).findFirst();
-                session.getRealLocations().deleteAllFromRealm();
                 if (session == null) realm.createObject(Session.class);
             }
         });

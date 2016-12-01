@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     static Boolean activated = false;
 
     AnonymizationService anonymizationService;
-    LocationAnonymizer locationAnonymizer;
 
     // Wait for click on "List Running Applications" button and create new activity
     View.OnClickListener listRunningApps = new View.OnClickListener() {
@@ -175,15 +174,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         };
 
         anonymizationService = new AnonymizationService();
-        locationAnonymizer = new LocationAnonymizer(this, anonymizationService);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         locationListener = new android.location.LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                realm = Realm.getDefaultInstance();
+
+                Session session = realm.where(Session.class).findFirst();
+
+                session.addNewRealLocation(location);
+
+                realm.close();
+
                 Log.i("location", location.toString());
-                locationAnonymizer.addNewRealLocation(location);
                 updateCoords(location.getLatitude(), location.getLongitude());
             }
 
@@ -279,7 +284,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         double lat = location.getLatitude();
         double lng = location.getLongitude();
 
-        locationAnonymizer.addNewRealLocation(location);
+        realm = Realm.getDefaultInstance();
+
+        Session session = realm.where(Session.class).findFirst();
+
+        session.addNewRealLocation(location);
+
+        realm.close();
 
         latView.setText("Lat: " + String.valueOf(lat));
         longView.setText("Lng: " + String.valueOf(lng));

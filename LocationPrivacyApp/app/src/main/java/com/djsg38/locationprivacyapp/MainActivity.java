@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private Button showPreferences;
     TextView latView;
     TextView longView;
+    Boolean isServiceRunning = false;
 
     android.location.LocationListener locationListener;
     LocationRequest mLocationRequest;
@@ -69,11 +70,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             Log.i("MockLocs", "Clicked mock Locs.");
 
             if (!activated) {
+                isServiceRunning = true;
                 locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
                 activateMockLocs.setText("Deactivate Mock Locations");
                 bindService(new Intent(MainActivity.this, AnonymizationService.class), serviceConnection, Context.BIND_AUTO_CREATE);
                 activated = true;
             } else {
+                isServiceRunning = false;
                 activateMockLocs.setText("Activate Mock Locations");
                 unbindService(serviceConnection);
                 activated = false;
@@ -133,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         getSupportActionBar().setDisplayShowTitleEnabled(true);
 
         Realm.init(this);
-        realm = Realm.getDefaultInstance();/*
+        realm = Realm.getDefaultInstance(); /*
 //        Comment this comment-block to essentially delete the DB.
 //        This might need to be done if models are changed.
 
@@ -180,15 +183,31 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         locationListener = new android.location.LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                realm = Realm.getDefaultInstance();
+                if(!isServiceRunning) {
+                    realm = Realm.getDefaultInstance();
 
-                Session session = realm.where(Session.class).findFirst();
+                    Boolean isIn = false;
 
-                realm.beginTransaction();
-                session.addNewRealLocation(location);
-                realm.commitTransaction();
+                    Log.i("RealLoc", location.toString());
+                    Session session = realm.where(Session.class).findFirst();
 
-                realm.close();
+                    // Checks if the current location has already been placed in realLocations
+                    for(com.djsg38.locationprivacyapp.models.Location loc : session.getRealLocations()) {
+                        if(loc.getLat() == location.getLatitude() && loc.getLong() == location.getLongitude()) {
+                            isIn = true;
+                        }
+                    }
+
+                    // If the location is not in there, add it
+                    // Trying to prevent duplicates
+                    if(!isIn) {
+                        realm.beginTransaction();
+                        session.addNewRealLocation(location);
+                        realm.commitTransaction();
+                    }
+
+                    realm.close();
+                }
 
                 Log.i("location", location.toString());
                 updateCoords(location.getLatitude(), location.getLongitude());
@@ -283,21 +302,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onLocationChanged(Location location) {
-        double lat = location.getLatitude();
-        double lng = location.getLongitude();
-
-        realm = Realm.getDefaultInstance();
-
-        Session session = realm.where(Session.class).findFirst();
-
-        realm.beginTransaction();
-        session.addNewRealLocation(location);
-        realm.commitTransaction();
-
-        realm.close();
-
-        latView.setText("Lat: " + String.valueOf(lat));
-        longView.setText("Lng: " + String.valueOf(lng));
+        updateCoords(location.getLatitude(), location.getLongitude());
     }
 
     @Override

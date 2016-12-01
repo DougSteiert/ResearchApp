@@ -42,9 +42,10 @@ public class GenerateNearbyCities {
         if(session == null) session = realm.where(Session.class).findFirst();
 
         double realDistanceMoved = calculateDistanceBetweenCities(session.getRealLocations());
-        double mockDistanceMoved = calculateDistanceBetweenCities(session.getMockLocations());
+        Log.i("RealDistance", String.valueOf(realDistanceMoved));
 
         int mockSize = session.getMockLocations().size();
+        Log.i("MockSize", String.valueOf(mockSize));
 
         while(randLocs.size() < 5) {
             randIndex = rand.nextInt(cityList.size());
@@ -56,7 +57,7 @@ public class GenerateNearbyCities {
                 tempLoc.setLong(cityList.get(randIndex).getLng());
                 if(mockSize > 1) {
                     double tempDistance = calculateFakeDistance(tempLoc, session.getMockLocations().get(mockSize - 1));
-                    if(tempDistance >= (realDistanceMoved - 2) || tempDistance <= (realDistanceMoved + 2)) {
+                    if(tempDistance >= (realDistanceMoved - 2) && tempDistance <= (realDistanceMoved + 2)) {
                         randLocs.add(cityList.get(randIndex));
                     }
                 }

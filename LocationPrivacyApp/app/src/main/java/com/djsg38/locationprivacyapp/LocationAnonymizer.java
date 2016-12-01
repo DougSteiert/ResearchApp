@@ -33,7 +33,10 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     AnonymizationService anonymizationService;
     MainActivity mainActivity;
     Random rand;
+    int realLocUse;
     int randIndex;
+
+    com.djsg38.locationprivacyapp.models.Location currentLoc;
 
     Realm realm;
 
@@ -46,10 +49,10 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            Log.i("Handler", "hi");
             updateMockLocation();
 
-            handler.postDelayed(this, 10000);
+            // 30000 = 30s approx
+            handler.postDelayed(this, 30000);
         }
     };
 
@@ -66,6 +69,15 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
             cityNames.add(data.getName());
             cityCoords.add(new LatLng(data.getLat(), data.getLng()));
         }
+
+        realm = Realm.getDefaultInstance();
+        Session session = realm.where(Session.class).findFirst();
+
+        currentLoc = new com.djsg38.locationprivacyapp.models.Location();
+        currentLoc.setLat(session.getRealLocations().get(session.getRealLocations().size() - 1).getLat());
+        currentLoc.setLong(session.getRealLocations().get(session.getRealLocations().size() - 1).getLong());
+
+        Log.i("CurrentLoc", String.valueOf(currentLoc.getLat()) + ',' + String.valueOf(currentLoc.getLong()));
 
         createLocationRequest();
         buildGoogleApiClient();
@@ -119,12 +131,33 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         rand = new Random();
         randIndex = rand.nextInt(cityCoords.size());
 
+        // Don't ask, don't tell
+        // Just random number divisible by 3
+        realLocUse = rand.nextInt(51);
+        // Another method to ensure app doesn't go too long without using real loc
+        int count = 0;
+
         Location mockLoc = new Location(LocationManager.NETWORK_PROVIDER);
-        mockLoc.setLatitude(cityCoords.get(randIndex).latitude);
-        mockLoc.setLongitude(cityCoords.get(randIndex).longitude);
+
+        // If the number is divisible by 3, then go ahead and use the real location (random choice)
+        if((realLocUse % 3) == 0 || count == 10) {
+
+            mockLoc.setLatitude(currentLoc.getLat());
+            mockLoc.setLongitude(currentLoc.getLong());
+            Log.i("YO", "used real loc");
+            count = 0;
+        }
+        else {
+            mockLoc.setLatitude(cityCoords.get(randIndex).latitude);
+            mockLoc.setLongitude(cityCoords.get(randIndex).longitude);
+            count++;
+        }
+
         mockLoc.setAccuracy(20);
         mockLoc.setTime(System.currentTimeMillis());
         mockLoc.setElapsedRealtimeNanos(System.nanoTime());
+
+        Log.i("MockedLoc", mockLoc.toString());
 
         try {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -139,7 +172,9 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
             }
             LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, mockLoc);
 
-            Realm realm = Realm.getDefaultInstance();
+            // Think we don't want this here, to prevent duplicates being added
+            // They will get added when we choose the location and OnLocationChanged is called by system
+            /*Realm realm = Realm.getDefaultInstance();
 
             Session session = realm.where(Session.class).findFirst();
 
@@ -147,7 +182,7 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
             session.addNewMockLocation(mockLoc);
             realm.commitTransaction();
 
-            realm.close();
+            realm.close();*/
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -195,11 +230,23 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
 
         Realm realm = Realm.getDefaultInstance();
 
+        Boolean isIn = false;
+
         Session session = realm.where(Session.class).findFirst();
 
-        realm.beginTransaction();
-        session.addNewMockLocation(location);
-        realm.commitTransaction();
+        // Check if the location coords are stored already
+        for(com.djsg38.locationprivacyapp.models.Location loc : session.getMockLocations()) {
+            if(loc.getLat() == location.getLatitude() && loc.getLong() == location.getLongitude()) {
+                isIn = true;
+            }
+        }
+
+        // Prevent duplicates
+        if(!isIn) {
+            realm.beginTransaction();
+            session.addNewMockLocation(location);
+            realm.commitTransaction();
+        }
 
         realm.close();
 

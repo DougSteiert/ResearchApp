@@ -143,7 +143,9 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
 
             Session session = realm.where(Session.class).findFirst();
 
+            realm.beginTransaction();
             session.addNewMockLocation(mockLoc);
+            realm.commitTransaction();
 
             realm.close();
         }
@@ -195,7 +197,9 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
 
         Session session = realm.where(Session.class).findFirst();
 
+        realm.beginTransaction();
         session.addNewMockLocation(location);
+        realm.commitTransaction();
 
         realm.close();
 

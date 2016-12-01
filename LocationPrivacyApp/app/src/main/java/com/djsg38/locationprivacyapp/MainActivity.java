@@ -184,7 +184,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
                 Session session = realm.where(Session.class).findFirst();
 
+                realm.beginTransaction();
                 session.addNewRealLocation(location);
+                realm.commitTransaction();
 
                 realm.close();
 
@@ -288,7 +290,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         Session session = realm.where(Session.class).findFirst();
 
+        realm.beginTransaction();
         session.addNewRealLocation(location);
+        realm.commitTransaction();
 
         realm.close();
 

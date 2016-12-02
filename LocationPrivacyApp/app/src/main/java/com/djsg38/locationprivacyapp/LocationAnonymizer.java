@@ -31,10 +31,11 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     AnonymizationService anonymizationService;
-    MainActivity mainActivity;
-    Random rand;
-    int realLocUse;
-    int randIndex;
+    private Random rand;
+    private int realLocUse;
+    private int randIndex;
+
+    private int count = 0;
 
     com.djsg38.locationprivacyapp.models.Location currentLoc;
 
@@ -135,12 +136,12 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         // Just random number divisible by 3
         realLocUse = rand.nextInt(51);
         // Another method to ensure app doesn't go too long without using real loc
-        int count = 0;
+
 
         Location mockLoc = new Location(LocationManager.NETWORK_PROVIDER);
 
         // If the number is divisible by 3, then go ahead and use the real location (random choice)
-        if((realLocUse % 3) == 0 || count == 10) {
+        if((((realLocUse % 3) == 0) && (count > 2)) || count == 10) {
 
             mockLoc.setLatitude(currentLoc.getLat());
             mockLoc.setLongitude(currentLoc.getLong());
@@ -249,6 +250,8 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         }
 
         realm.close();
+
+        MainActivity.updateCoords(location.getLatitude(), location.getLongitude());
 
         updateMockLocation();
     }

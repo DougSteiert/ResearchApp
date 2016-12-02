@@ -36,8 +36,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     Button showProcesses;
     Button activateMockLocs;
     private Button showPreferences;
-    TextView latView;
-    TextView longView;
+    static TextView latView;
+    static TextView longView;
     Boolean isServiceRunning = false;
 
     android.location.LocationListener locationListener;
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     };
 
-    public void updateCoords(double lat, double lng) {
+    public static void updateCoords(double lat, double lng) {
         latView.setText("Lat: " + String.valueOf(lat));
         longView.setText("Lng: " + String.valueOf(lng));
     }

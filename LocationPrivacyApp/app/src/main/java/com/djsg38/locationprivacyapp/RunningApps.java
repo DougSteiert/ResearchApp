@@ -60,10 +60,10 @@ public class RunningApps extends AppCompatActivity {
         ActivityManager activityManager = (ActivityManager) getApplicationContext().getSystemService((ACTIVITY_SERVICE));
 
         processes.clear();
-        List<RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+        List<ActivityManager.RunningServiceInfo> procInfos = activityManager.getRunningServices(50);
 
         for(int i = 0; i < procInfos.size(); i++) {
-            processes.add(procInfos.get(i).processName);
+            processes.add(procInfos.get(i).process);
         }
 
         arrayAdapter.notifyDataSetChanged();

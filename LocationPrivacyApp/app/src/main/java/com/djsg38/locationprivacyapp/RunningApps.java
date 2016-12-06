@@ -2,6 +2,8 @@ package com.djsg38.locationprivacyapp;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -57,13 +59,24 @@ public class RunningApps extends AppCompatActivity {
     }
 
     public void updateProcesses() {
-        ActivityManager activityManager = (ActivityManager) getApplicationContext().getSystemService((ACTIVITY_SERVICE));
+        PackageManager pm = getApplicationContext().getPackageManager();
 
         processes.clear();
-        List<ActivityManager.RunningServiceInfo> procInfos = activityManager.getRunningServices(50);
+        ArrayList<ApplicationInfo> procInfos = (ArrayList<ApplicationInfo>) pm.getInstalledApplications(PackageManager.GET_META_DATA);
+//        List<ActivityManager.RunningServiceInfo> procInfos = activityManager.getRunningServices(50);
 
         for(int i = 0; i < procInfos.size(); i++) {
-            processes.add(procInfos.get(i).process);
+            String app = procInfos.get(i).packageName;
+            Integer coarse_perms = pm.checkPermission("android.permission.ACCESS_COARSE_LOCATION", app),
+                    fine_perms = pm.checkPermission("android.permission.ACCESS_FINE_LOCATION", app),
+                    sys_perms = procInfos.get(i).flags & ApplicationInfo.FLAG_SYSTEM;
+            if((coarse_perms == PackageManager.PERMISSION_GRANTED
+                    || fine_perms == PackageManager.PERMISSION_GRANTED)
+                    && sys_perms == 0) {
+                String appName = (String) pm.getApplicationLabel(procInfos.get(i));
+                Log.i("services:", app + " " + appName);
+                processes.add(appName);
+            }
         }
 
         arrayAdapter.notifyDataSetChanged();

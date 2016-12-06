@@ -158,6 +158,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             }
         });
 
+        ServiceUtilities.addLocationActivities(getApplicationContext(), realm);
+
         Log.i("Total sessions: ", String.valueOf(realm.where(Session.class).count()));
 
         createLocationRequest();
@@ -184,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void onLocationChanged(Location location) {
                 if(!isServiceRunning) {
-                    realm = Realm.getDefaultInstance();
+                    Realm realm = Realm.getDefaultInstance();
 
                     Boolean isIn = false;
 

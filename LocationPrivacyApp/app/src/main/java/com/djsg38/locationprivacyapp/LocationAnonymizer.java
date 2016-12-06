@@ -75,8 +75,10 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         Session session = realm.where(Session.class).findFirst();
 
         currentLoc = new com.djsg38.locationprivacyapp.models.Location();
-        currentLoc.setLat(session.getRealLocations().get(session.getRealLocations().size() - 1).getLat());
-        currentLoc.setLong(session.getRealLocations().get(session.getRealLocations().size() - 1).getLong());
+        if(session.getRealLocations().size() > 0) {
+            currentLoc.setLat(session.getRealLocations().last().getLat());
+            currentLoc.setLong(session.getRealLocations().last().getLong());
+        }
 
         Log.i("CurrentLoc", String.valueOf(currentLoc.getLat()) + ',' + String.valueOf(currentLoc.getLong()));
 

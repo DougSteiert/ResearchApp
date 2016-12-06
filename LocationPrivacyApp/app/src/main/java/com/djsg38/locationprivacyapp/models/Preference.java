@@ -10,19 +10,24 @@ import io.realm.annotations.PrimaryKey;
 
 public class Preference extends RealmObject {
     @PrimaryKey
-    public String name;
+    public String packageName;
 
+    public String name;
     public boolean isService;
     public double privacyScale;
-    public RealmList<Location> before,after;
+    public RealmList<Location> before, after;
 
-    public String getName() {
-        return name;
+    public String getPackageName() {
+        return packageName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
+
+    public String getName() { return name; }
+
+    public void setName(String name) { this.name = name; }
 
     public boolean isService() {
         return isService;

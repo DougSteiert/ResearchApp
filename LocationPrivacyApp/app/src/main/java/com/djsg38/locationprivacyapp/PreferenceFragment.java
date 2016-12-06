@@ -4,6 +4,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,10 +28,12 @@ import io.realm.Realm;
  * create an instance of this fragment.
  */
 public class PreferenceFragment extends Fragment {
-    private static final String PREFERENCE_NAME = "preference_name";
+    private static final String PREFERENCE_NAME = "preference_name",
+            PREFERENCE_PACKAGE_NAME = "preference_package_name";
 
     // TODO: Rename and change types of parameters
-    private String preference_name;
+    private String preference_name,
+            preference_package_name;
 
     private OnFragmentInteractionListener mListener;
 
@@ -48,14 +51,16 @@ public class PreferenceFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param preference_id Parameter 1.
+     * @param name Parameter 1.
+     * @param package_name Parameter 2.
      * @return A new instance of fragment PreferenceFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static Fragment newInstance(String preference_id) {
+    public static Fragment newInstance(String name, String package_name) {
         PreferenceFragment fragment = new PreferenceFragment();
         Bundle args = new Bundle();
-        args.putString(PREFERENCE_NAME, preference_id);
+        args.putString(PREFERENCE_NAME, name);
+        args.putString(PREFERENCE_PACKAGE_NAME, package_name);
         fragment.setArguments(args);
         return fragment;
     }
@@ -91,6 +96,7 @@ public class PreferenceFragment extends Fragment {
 
         if (getArguments() != null) {
             preference_name = getArguments().getString(PREFERENCE_NAME);
+            preference_package_name = getArguments().getString(PREFERENCE_PACKAGE_NAME);
             Preference preference = realm.where(Preference.class).equalTo("name", preference_name).findFirst();
             if(preference != null) {
                 edit_name.setText(preference.getName());
@@ -105,12 +111,13 @@ public class PreferenceFragment extends Fragment {
         realm.beginTransaction();
         Session session = realm.where(Session.class).findFirst();
         Preference preference = session.getPreferences().where()
-                .equalTo("name", preference_name).findFirst();
+                .equalTo("name", preference_package_name).findFirst();
         if(preference == null) {
-            preference = new Preference();
+            Log.i("bad thing", preference_package_name);
+            /*preference = new Preference();
             preference.setName(edit_name.getText().toString());
             preference.setPrivacyScale(edit_privacy_scale.getProgress());
-            session.getPreferences().add(preference);
+            session.getPreferences().add(preference);*/
         }
         else {
             edit_name.setText(preference.getName());
@@ -125,7 +132,7 @@ public class PreferenceFragment extends Fragment {
         realm = Realm.getDefaultInstance();
         realm.beginTransaction();
         realm.where(Session.class).findFirst().getPreferences()
-                .where().equalTo("name", preference_name)
+                .where().equalTo("packageName", preference_package_name)
                 .findAll().deleteAllFromRealm();
         realm.commitTransaction();
         Toast.makeText(getContext(), "Deleted " + preference_name, Toast.LENGTH_LONG).show();

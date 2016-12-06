@@ -73,4 +73,8 @@ public class Session extends RealmObject {
             }
         }
     }
+
+    public void addPreference(String packageName, String applicationName) {
+
+    }
 }

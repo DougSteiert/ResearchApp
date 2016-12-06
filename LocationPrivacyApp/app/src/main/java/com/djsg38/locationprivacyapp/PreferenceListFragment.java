@@ -42,21 +42,6 @@ public class PreferenceListFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         realm = Realm.getDefaultInstance();
 
-        rand = new Random();
-
-        FloatingActionButton fab = (FloatingActionButton) getActivity().findViewById(R.id.floatingActionButton);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                FragmentTransaction fmt = getFragmentManager().beginTransaction();
-                Fragment pfm = PreferenceFragment.newInstance("");
-                fmt.replace(R.id.content_preference_list, pfm);
-                fmt.addToBackStack(null);
-                fmt.commit();
-                Snackbar.make(view, "adding  new pref", 2000).show();
-            }
-        });
-
         ListView preferenceList = (ListView) getActivity().findViewById(R.id.preferenceList);
         RealmList<Preference> preferences = realm.where(Session.class).findFirst().getPreferences();
         final ListAdapter preferenceListAdapter = new PreferenceListAdapter(this.getContext(), preferences);
@@ -65,10 +50,12 @@ public class PreferenceListFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Preference preference = (Preference) preferenceListAdapter.getItem(position);
-                final String preferenceName = preference.getName();
+                final String preferenceName = preference.getName(),
+                        preferencePackageName = preference.getPackageName();
 
                 FragmentTransaction fmt = getFragmentManager().beginTransaction();
-                Fragment pfm = PreferenceFragment.newInstance(preferenceName);
+                Fragment pfm = PreferenceFragment.newInstance(preferenceName,
+                        preferencePackageName);
                 fmt.replace(R.id.content_preference_list, pfm);
                 fmt.addToBackStack(null);
                 fmt.commit();

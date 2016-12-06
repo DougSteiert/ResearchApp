@@ -111,7 +111,7 @@ public class PreferenceFragment extends Fragment {
         realm.beginTransaction();
         Session session = realm.where(Session.class).findFirst();
         Preference preference = session.getPreferences().where()
-                .equalTo("name", preference_package_name).findFirst();
+                .equalTo("packageName", preference_package_name).findFirst();
         if(preference == null) {
             Log.i("bad thing", preference_package_name);
             /*preference = new Preference();
@@ -120,7 +120,7 @@ public class PreferenceFragment extends Fragment {
             session.getPreferences().add(preference);*/
         }
         else {
-            edit_name.setText(preference.getName());
+            preference.setName(edit_name.getText().toString());
             preference.setPrivacyScale(edit_privacy_scale.getProgress());
         }
         realm.commitTransaction();

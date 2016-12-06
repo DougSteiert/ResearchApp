@@ -16,10 +16,13 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
 import android.location.Location;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.djsg38.locationprivacyapp.models.Session;
 import com.google.android.gms.common.ConnectionResult;
@@ -38,6 +41,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     private Button showPreferences;
     static TextView latView;
     static TextView longView;
+    EditText kValue;
+    private int inputValue = 0;
+    private String value;
+
     Boolean isServiceRunning = false;
 
     android.location.LocationListener locationListener;
@@ -71,9 +78,19 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
             if (!activated) {
                 isServiceRunning = true;
+                value = kValue.getText().toString();
+                inputValue = Integer.parseInt(value);
+                while(inputValue < 1) {
+                    Toast.makeText(getApplicationContext(), "Please enter a value greater than zero.", Toast.LENGTH_SHORT).show();
+                }
                 locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
                 activateMockLocs.setText("Deactivate Mock Locations");
-                bindService(new Intent(MainActivity.this, AnonymizationService.class), serviceConnection, Context.BIND_AUTO_CREATE);
+
+                Intent intent = new Intent(MainActivity.this, AnonymizationService.class);
+                intent.putExtra("kValue", inputValue);
+                bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+                InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputMethodManager.hideSoftInputFromWindow(kValue.getWindowToken(), 0);
                 activated = true;
             } else {
                 isServiceRunning = false;
@@ -233,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
 
         latView = (TextView) findViewById(R.id.latView);
         longView = (TextView) findViewById(R.id.longView);
+        kValue = (EditText) findViewById(R.id.kValue);
 
         showProcesses = (Button) findViewById(R.id.listApps);
         showProcesses.setOnClickListener(listRunningApps);

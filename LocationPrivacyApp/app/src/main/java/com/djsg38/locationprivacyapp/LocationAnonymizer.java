@@ -57,12 +57,12 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         }
     };
 
-    public LocationAnonymizer(Context context, AnonymizationService anonymizationService) {
+    public LocationAnonymizer(Context context, AnonymizationService anonymizationService, Integer kValue) {
         this.context = context;
         this.anonymizationService = anonymizationService;
 
         cityGen = new GenerateNearbyCities();
-        randLocs = cityGen.generateLocations();
+        randLocs = cityGen.generateLocations(kValue);
         cityNames = new ArrayList<>();
         cityCoords = new ArrayList<>();
 

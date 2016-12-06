@@ -30,7 +30,7 @@ public class GenerateNearbyCities {
     private Realm realm;
     Session session;
 
-    public ArrayList<XMLAttributes> generateLocations() {
+    public ArrayList<XMLAttributes> generateLocations(Integer numberLocs) {
         String url = "http://api.geonames.org/findNearbyPlaceName?lat=37.951424&lng=-91.768959&radius=150&maxRows=99999&username=dsteiert";
         rand = new Random();
         int randIndex;
@@ -47,7 +47,9 @@ public class GenerateNearbyCities {
         int mockSize = session.getMockLocations().size();
         Log.i("MockSize", String.valueOf(mockSize));
 
-        while(randLocs.size() < 5) {
+        // (numberLocs - 1) ensures k-anonymity because your real location added with (k -1) other
+        // values gives you k total locations to be hidden in
+        while(randLocs.size() < (numberLocs - 1)) {
             randIndex = rand.nextInt(cityList.size());
 
             if(cityList.get(randIndex).getDistance() >= 100) {

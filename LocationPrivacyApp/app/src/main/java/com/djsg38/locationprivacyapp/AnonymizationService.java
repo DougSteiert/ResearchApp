@@ -26,13 +26,13 @@ import com.google.android.gms.location.LocationServices;
 
 public class AnonymizationService extends Service {
 
+    private int kValue;
+
     LocationAnonymizer locationAnonymizer;
 
     @Override
     public void onCreate() {
         super.onCreate();
-
-        locationAnonymizer = new LocationAnonymizer(this, this);
     }
 
     @Override
@@ -46,15 +46,11 @@ public class AnonymizationService extends Service {
     public IBinder onBind(Intent intent) {
         Toast.makeText(this, "Anonymization Started", Toast.LENGTH_SHORT).show();
         showNotif();
+
+        kValue = intent.getIntExtra("kValue", 1);
+
+        locationAnonymizer = new LocationAnonymizer(this, this, kValue);
         return null;
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(this, "Anonymization Started", Toast.LENGTH_SHORT).show();
-        showNotif();
-
-        return Service.START_STICKY;
     }
 
     // Stop the service from running

@@ -31,7 +31,7 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     AnonymizationService anonymizationService;
-    private Random rand;
+    private static Random rand;
     private int realLocUse;
     private int randIndex;
 
@@ -51,15 +51,21 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         @Override
         public void run() {
             updateMockLocation();
+            Double randTime = LocationAnonymizer.rand.nextDouble() * 29000;
+            int time = randTime.intValue() + 1000;
+
+            Log.i("timer time", String.valueOf(time) + " " + String.valueOf(randTime));
 
             // 30000 = 30s approx
-            handler.postDelayed(this, 30000);
+            handler.postDelayed(this, time);
         }
     };
 
     public LocationAnonymizer(Context context, AnonymizationService anonymizationService, Integer kValue) {
         this.context = context;
         this.anonymizationService = anonymizationService;
+
+        rand = new Random();
 
         cityGen = new GenerateNearbyCities();
         randLocs = cityGen.generateLocations(kValue);
@@ -131,7 +137,6 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
 
     // Update the current mocked location to a new value
     private void updateMockLocation() {
-        rand = new Random();
         randIndex = rand.nextInt(cityCoords.size());
 
         // Don't ask, don't tell

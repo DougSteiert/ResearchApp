@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.djsg38.locationprivacyapp.PreferenceListFragment">
+    tools:context="com.djsg38.locationprivacyapp.PreferenceUI.PreferenceListFragment">
 
     <LinearLayout
         android:orientation="horizontal"
@@ -38,17 +38,6 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Headline"
             android:textAlignment="center" />
     </LinearLayout>
-
-    <android.support.design.widget.FloatingActionButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        app:fabSize="mini"
-        app:srcCompat="@android:drawable/ic_input_add"
-        android:id="@+id/floatingActionButton"
-        app:elevation="3dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true" />
 
     <ListView
         android:layout_width="match_parent"

@@ -1,9 +1,11 @@
-package com.djsg38.locationprivacyapp;
+package com.djsg38.locationprivacyapp.PreferenceUI;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+
+import com.djsg38.locationprivacyapp.R;
 
 import io.realm.Realm;
 

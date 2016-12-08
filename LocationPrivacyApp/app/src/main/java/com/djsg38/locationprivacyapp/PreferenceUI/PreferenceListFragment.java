@@ -1,10 +1,8 @@
-package com.djsg38.locationprivacyapp;
+package com.djsg38.locationprivacyapp.PreferenceUI;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +10,9 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import com.djsg38.locationprivacyapp.R;
 import com.djsg38.locationprivacyapp.models.Preference;
 import com.djsg38.locationprivacyapp.models.Session;
-
-import java.util.Random;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -26,7 +23,6 @@ import io.realm.RealmList;
 public class PreferenceListFragment extends Fragment {
 
     private Realm realm;
-    private Random rand;
 
     public PreferenceListFragment() {
     }

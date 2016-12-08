@@ -86,20 +86,17 @@
     <Button
         android:text="Mobility Trace"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:id="@+id/mob_trace_button"
+        android:layout_below="@+id/listApps"
+        android:layout_alignStart="@+id/preferenceList" />
 
     <Button
         android:text="List Running Applications"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/listApps"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentTop="true" />
 
-    =======
-        android:id="@+id/mob_trace_button"
-        android:layout_below="@+id/listApps"
-        android:layout_alignStart="@+id/preferenceList" />
->>>>>>> refs/remotes/origin/master
 
 </RelativeLayout>

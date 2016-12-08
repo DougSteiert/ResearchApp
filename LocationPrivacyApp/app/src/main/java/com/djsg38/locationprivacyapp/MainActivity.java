@@ -79,6 +79,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             if (!activated) {
                 isServiceRunning = true;
                 value = kValue.getText().toString();
+                while(value == null) {
+                    Toast.makeText(getApplicationContext(), "Please enter a value.", Toast.LENGTH_SHORT).show();
+                }
                 inputValue = Integer.parseInt(value);
                 while(inputValue < 1) {
                     Toast.makeText(getApplicationContext(), "Please enter a value greater than zero.", Toast.LENGTH_SHORT).show();

@@ -24,26 +24,39 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.djsg38.locationprivacyapp.PreferenceUI.PreferenceList;
 import com.djsg38.locationprivacyapp.models.Session;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class MainActivity extends AppCompatActivity
+        implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener,
+        OnMapReadyCallback
+{
 
     Button showProcesses;
     Button activateMockLocs;
-    private Button showPreferences;
+    private Button showPreferences, mobilityTrace;
     static TextView latView;
     static TextView longView;
     EditText kValue;
     private int inputValue = 0;
     private String value;
+    private GoogleMap mMap;
 
     Boolean isServiceRunning = false;
 
@@ -77,12 +90,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             Log.i("MockLocs", "Clicked mock Locs.");
 
             if (!activated) {
-                isServiceRunning = true;
                 value = kValue.getText().toString();
                 inputValue = Integer.parseInt(value);
-                while(inputValue < 1) {
+
+                if (inputValue < 1) {
                     Toast.makeText(getApplicationContext(), "Please enter a value greater than zero.", Toast.LENGTH_SHORT).show();
+                    return;
                 }
+
+                isServiceRunning = true;
                 locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
                 activateMockLocs.setText("Deactivate Mock Locations");
 
@@ -133,6 +149,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(getApplicationContext(), PreferenceList.class);
+            startActivity(intent);
+        }
+    };
+
+    View.OnClickListener mobilityTracer = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(getApplicationContext(), MobilityTrace.class);
             startActivity(intent);
         }
     };
@@ -261,6 +285,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         showPreferences = (Button) findViewById(R.id.preferenceList);
         showPreferences.setOnClickListener(listPreferences);
 
+        mobilityTrace = (Button) findViewById(R.id.mob_trace_button);
+        mobilityTrace.setOnClickListener(mobilityTracer);
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -272,6 +299,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             return;
         }
         locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+
+        MapFragment current_location = MapFragment.newInstance();
+        current_location.getMapAsync(this);
+
+        getFragmentManager().beginTransaction()
+                .add(R.id.current_location_map_container, current_location)
+                .commit();
     }
 
     @Override
@@ -323,6 +357,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onLocationChanged(Location location) {
         updateCoords(location.getLatitude(), location.getLongitude());
+        if(mMap != null) {
+            LatLng reported = new LatLng(location.getLatitude(),
+                                         location.getLongitude());
+            mMap.clear();
+            mMap.addMarker(new MarkerOptions()
+                    .position(reported)
+                    .title("Reported Location"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(reported));
+        }
     }
 
     @Override
@@ -349,5 +392,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(0, 0))
+                .title("Waiting to begin..."));
     }
 }

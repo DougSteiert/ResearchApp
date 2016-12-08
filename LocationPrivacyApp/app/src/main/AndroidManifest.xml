@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    android:name="android.support.multidex.MultiDexApplication"
     package="com.djsg38.locationprivacyapp">
 
     <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.DUMP" />
 
     <application
         android:allowBackup="true"
@@ -19,7 +19,6 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -33,7 +32,7 @@
                 android:value="com.djsg38.locationprivacyapp.MainActivity" />
         </activity>
         <activity
-            android:name=".PreferenceList"
+            android:name=".PreferenceUI.PreferenceList"
             android:label="@string/title_activity_preference_list"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -41,11 +40,34 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.djsg38.locationprivacyapp.MainActivity" />
         </activity>
+        <activity android:name=".MobilityTrace"
+            android:label="@string/title_activity_mobility_trace"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="com.google.android.geo.API_KEY"
+                android:value="@string/google_maps_key" />
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.djsg38.locationprivacyapp.MainActivity" />
+        </activity>
+
 
         <service
             android:name=".AnonymizationService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
+        <!--
+             The API key for Google Maps-based APIs is defined as a string resource.
+             (See the file "res/values/google_maps_api.xml").
+             Note that the API key is linked to the encryption key used to sign the APK.
+             You need a different API key for each encryption key, including the release key that is used to
+             sign the APK for publishing.
+             You can define the keys for the debug and release targets in src/debug/ and src/release/. 
+        -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
     </application>
 
 </manifest>

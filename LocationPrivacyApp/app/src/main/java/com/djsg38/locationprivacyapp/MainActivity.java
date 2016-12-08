@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity
     static TextView latView;
     static TextView longView;
     EditText kValue;
-    private int inputValue = 0;
+    private int inputValue;
     private String value;
     private GoogleMap mMap;
 
@@ -91,6 +91,12 @@ public class MainActivity extends AppCompatActivity
 
             if (!activated) {
                 value = kValue.getText().toString();
+
+                if (value.matches("")) {
+                    Toast.makeText(getApplicationContext(), "Please enter a value for k.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
                 inputValue = Integer.parseInt(value);
 
                 if (inputValue < 1) {

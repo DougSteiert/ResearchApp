@@ -20,7 +20,6 @@
         android:inputType="number"
         android:ems="10"
         android:id="@+id/kValue"
-        android:text="1"
         android:textAlignment="center"
         android:layout_above="@+id/latView"
         android:layout_alignParentEnd="true"
@@ -75,15 +74,6 @@
         android:layout_alignParentEnd="true" />
 
     <Button
-        android:text="Preference List"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/preferenceList"
-        android:layout_marginTop="48dp"
-        android:layout_below="@+id/listApps"
-        android:layout_alignStart="@+id/activateMock" />
-
-    <Button
         android:text="Mobility Trace"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -96,7 +86,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/listApps"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/mob_trace_button" />
+
+    <Button
+        android:text="Preference List"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/preferenceList"
+        android:layout_below="@+id/mob_trace_button"
+        android:layout_alignStart="@+id/activateMock" />
 
 
 </RelativeLayout>

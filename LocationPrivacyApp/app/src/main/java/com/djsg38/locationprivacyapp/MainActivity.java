@@ -91,9 +91,6 @@ public class MainActivity extends AppCompatActivity
 
             if (!activated) {
                 value = kValue.getText().toString();
-                while(value == null) {
-                    Toast.makeText(getApplicationContext(), "Please enter a value.", Toast.LENGTH_SHORT).show();
-                }
                 inputValue = Integer.parseInt(value);
 
                 if (inputValue < 1) {

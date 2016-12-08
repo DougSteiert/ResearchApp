@@ -135,13 +135,8 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
 
     // Update the current mocked location to a new value
     private void updateMockLocation() {
-        // TODO: Fix this hacky way of solving kvalue == 1
-        if(cityCoords.size() > 0) {
-            randIndex = rand.nextInt(cityCoords.size());
-        }
-        else {
-            randIndex = -1;
-        }
+        randIndex = rand.nextInt(cityCoords.size());
+
 
         // Don't ask, don't tell
         // Just random number divisible by 3
@@ -152,8 +147,7 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         Location mockLoc = new Location(LocationManager.NETWORK_PROVIDER);
 
         // If the number is divisible by 3, then go ahead and use the real location (random choice)
-        // TODO: Fix this hacky way of solving kvalue == 1
-        if(randIndex == -1 || (((realLocUse % 3) == 0) && (count > 2)) || count == 10) {
+        if((((realLocUse % 3) == 0) && (count > 2)) || count == 10) {
 
             mockLoc.setLatitude(currentLoc.getLat());
             mockLoc.setLongitude(currentLoc.getLong());

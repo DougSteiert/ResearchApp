@@ -31,6 +31,7 @@ public class GenerateNearbyCities {
     Session session;
 
     public ArrayList<XMLAttributes> generateLocations(Integer numberLocs) {
+        // obviously this query should change as a person moves...
         String url = "http://api.geonames.org/findNearbyPlaceName?lat=37.951424&lng=-91.768959&radius=150&maxRows=99999&username=dsteiert";
         rand = new Random();
         int randIndex;
@@ -49,7 +50,7 @@ public class GenerateNearbyCities {
 
         // (numberLocs - 1) ensures k-anonymity because your real location added with (k -1) other
         // values gives you k total locations to be hidden in
-        while(randLocs.size() < (numberLocs - 1)) {
+        while(randLocs.size() < numberLocs) {
             randIndex = rand.nextInt(cityList.size());
 
             if(cityList.get(randIndex).getDistance() >= 100) {
@@ -70,6 +71,7 @@ public class GenerateNearbyCities {
         }
 
         realm.close();
+        realm = null;
 
         return randLocs;
     }

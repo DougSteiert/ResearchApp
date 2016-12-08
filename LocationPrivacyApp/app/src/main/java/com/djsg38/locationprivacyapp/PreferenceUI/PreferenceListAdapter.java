@@ -1,4 +1,4 @@
-package com.djsg38.locationprivacyapp;
+package com.djsg38.locationprivacyapp.PreferenceUI;
 
 import android.content.Context;
 import android.view.View;
@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import com.djsg38.locationprivacyapp.R;
 import com.djsg38.locationprivacyapp.models.Preference;
 
 import io.realm.OrderedRealmCollection;

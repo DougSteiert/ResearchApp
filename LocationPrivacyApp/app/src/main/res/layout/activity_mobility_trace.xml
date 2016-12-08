@@ -2,17 +2,18 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_preference_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.djsg38.locationprivacyapp.PreferenceUI.PreferenceList">
+    tools:context="com.djsg38.locationprivacyapp.MobilityTrace">
+
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        app:layout_insetEdge="top"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay"
-        app:layout_insetEdge="top">
+        android:layout_height="wrap_content">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -23,6 +24,6 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_preference_list"/>
+    <include layout="@layout/content_mobility_trace"/>
 
 </android.support.design.widget.CoordinatorLayout>

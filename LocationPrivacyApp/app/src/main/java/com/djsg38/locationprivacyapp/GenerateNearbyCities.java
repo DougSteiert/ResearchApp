@@ -31,6 +31,7 @@ public class GenerateNearbyCities {
     Session session;
 
     public ArrayList<XMLAttributes> generateLocations(Integer numberLocs) {
+        // obviously this query should change as a person moves...
         String url = "http://api.geonames.org/findNearbyPlaceName?lat=37.951424&lng=-91.768959&radius=150&maxRows=99999&username=dsteiert";
         rand = new Random();
         int randIndex;
@@ -70,6 +71,7 @@ public class GenerateNearbyCities {
         }
 
         realm.close();
+        realm = null;
 
         return randLocs;
     }

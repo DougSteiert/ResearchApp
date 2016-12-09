@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 
 public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -54,7 +55,7 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
             int time = randTime.intValue() + 1000;
 
             // 30000 = 30s approx
-            handler.postDelayed(this, time);
+            if(handler != null) handler.postDelayed(this, time);
         }
     };
 
@@ -100,6 +101,8 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     // Stop faking the location
     public void stopMockLocs() {
         handler.removeCallbacksAndMessages(null);
+        runnable = null;
+        handler = null;
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -110,8 +113,12 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, false);
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        if(mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.setMockMode(mGoogleApiClient, false);
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
+
+        realm.close();
     }
 
     // Initialize the ability to set mock locations
@@ -178,6 +185,14 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
                 return;
             }
             LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, mockLoc);
+            if(!realm.isClosed()) {
+                realm.beginTransaction();
+                realm.where(Session.class).findFirst().getMobilityTrace()
+                        .add(new com.djsg38.locationprivacyapp.models.Location()
+                                .setLat(mockLoc.getLatitude())
+                                .setLong(mockLoc.getLongitude()));
+                realm.commitTransaction();
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -220,34 +235,20 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     }
 
     @Override
-    public void onLocationChanged(Location location) {
+    public void onLocationChanged(final Location location) {
         Log.i("LocationChangedService", location.toString());
 
-        Realm realm = Realm.getDefaultInstance();
-
-        Boolean isIn = false;
-
         Session session = realm.where(Session.class).findFirst();
+        RealmList<com.djsg38.locationprivacyapp.models.Location>
+                mockLocs = session.getMockLocations();
 
-        // Check if the location coords are stored already
-        for(com.djsg38.locationprivacyapp.models.Location loc : session.getMockLocations()) {
-            if(loc.getLat() == location.getLatitude() && loc.getLong() == location.getLongitude()) {
-                isIn = true;
-            }
-        }
-
-        // Prevent duplicates
-        if(!isIn) {
+        if (mockLocs.where()
+                .equalTo("Lat", location.getLatitude())
+                .equalTo("Long", location.getLongitude()).findFirst() == null) {
             realm.beginTransaction();
             session.addNewMockLocation(location);
             realm.commitTransaction();
         }
-
-        realm.close();
-
-        MainActivity.updateCoords(location.getLatitude(), location.getLongitude());
-
-        updateMockLocation();
     }
 
     // Initialize a GoogleApiClient object

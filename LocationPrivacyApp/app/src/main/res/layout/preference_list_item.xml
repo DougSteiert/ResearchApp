@@ -7,20 +7,18 @@
     android:layout_margin="5dp">
 
     <TextView
-        android:text="No Name Available"
         android:layout_height="wrap_content"
         android:id="@+id/preferenceListItemName"
         android:layout_weight="1"
-        android:layout_width="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Light.SearchResult.Title"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp"
+        android:layout_width="0dp" />
 
     <TextView
-        android:text="No Rating Available"
-        android:layout_width="wrap_content"
+        android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:id="@+id/preferenceListItemRating"
-        android:layout_weight="1"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical" />
 </LinearLayout>

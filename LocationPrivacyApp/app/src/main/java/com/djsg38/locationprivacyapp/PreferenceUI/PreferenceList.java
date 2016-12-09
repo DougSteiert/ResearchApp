@@ -1,4 +1,4 @@
-package com.djsg38.locationprivacyapp.PreferenceUI;
+package com.djsg38.locationprivacyapp.preferenceUI;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;

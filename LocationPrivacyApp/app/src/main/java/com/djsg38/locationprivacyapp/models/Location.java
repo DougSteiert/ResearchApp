@@ -10,16 +10,18 @@ public class Location extends RealmObject {
         return Long;
     }
 
-    public void setLong(double aLong) {
-        Long = aLong;
+    public Location setLong(double aLong) {
+        this.Long = aLong;
+        return this;
     }
 
     public double getLat() {
         return Lat;
     }
 
-    public void setLat(double lat) {
-        Lat = lat;
+    public Location setLat(double lat) {
+        this.Lat = lat;
+        return this;
     }
 
 }

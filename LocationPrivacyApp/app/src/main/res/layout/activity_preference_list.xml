@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.djsg38.locationprivacyapp.PreferenceUI.PreferenceList">
+    tools:context="com.djsg38.locationprivacyapp.preferenceUI.PreferenceList">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

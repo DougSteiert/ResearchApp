@@ -21,44 +21,52 @@ public class Preference extends RealmObject {
         return packageName;
     }
 
-    public void setPackageName(String packageName) {
+    public Preference setPackageName(String packageName) {
         this.packageName = packageName;
+        return this;
     }
 
     public String getName() { return name; }
 
-    public void setName(String name) { this.name = name; }
+    public Preference setName(String name) {
+        this.name = name;
+        return this;
+    }
 
     public boolean isService() {
         return isService;
     }
 
-    public void setService(boolean service) {
-        isService = service;
+    public Preference setService(boolean service) {
+        this.isService = service;
+        return this;
     }
 
     public double getPrivacyScale() {
         return privacyScale;
     }
 
-    public void setPrivacyScale(double privacyScale) {
+    public Preference setPrivacyScale(double privacyScale) {
         this.privacyScale = privacyScale;
+        return this;
     }
 
     public RealmList<Location> getBefore() {
         return before;
     }
 
-    public void setBefore(RealmList<Location> before) {
+    public Preference setBefore(RealmList<Location> before) {
         this.before = before;
+        return this;
     }
 
     public RealmList<Location> getAfter() {
         return after;
     }
 
-    public void setAfter(RealmList<Location> after) {
+    public Preference setAfter(RealmList<Location> after) {
         this.after = after;
+        return this;
     }
 
 

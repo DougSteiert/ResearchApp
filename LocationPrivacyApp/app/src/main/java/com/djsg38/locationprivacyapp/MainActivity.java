@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity
                     Toast.makeText(getApplicationContext(), "Please enter a value for k.", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                
+
                 inputValue = Integer.parseInt(value);
 
                 if (inputValue < 1) {

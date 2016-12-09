@@ -63,7 +63,6 @@ public class RunningApps extends AppCompatActivity {
 
         processes.clear();
         ArrayList<ApplicationInfo> procInfos = (ArrayList<ApplicationInfo>) pm.getInstalledApplications(PackageManager.GET_META_DATA);
-//        List<ActivityManager.RunningServiceInfo> procInfos = activityManager.getRunningServices(50);
 
         for(int i = 0; i < procInfos.size(); i++) {
             String app = procInfos.get(i).packageName;

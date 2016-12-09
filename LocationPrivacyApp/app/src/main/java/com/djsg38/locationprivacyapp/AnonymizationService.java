@@ -64,7 +64,7 @@ public class AnonymizationService extends Service {
 
         Notification notif = new Notification.Builder(this)
                 .setContentTitle("LPAnon")
-                .setSmallIcon(R.drawable.ic_plusone_standard_off_client)
+                .setSmallIcon(R.drawable.common_full_open_on_phone)
                 .build();
 
         // Do not let user clear notification

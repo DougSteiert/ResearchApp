@@ -1,4 +1,4 @@
-package com.djsg38.locationprivacyapp.PreferenceUI;
+package com.djsg38.locationprivacyapp.preferenceUI;
 
 import android.content.Context;
 import android.view.View;

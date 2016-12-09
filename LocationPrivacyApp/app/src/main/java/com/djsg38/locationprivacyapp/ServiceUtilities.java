@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.djsg38.locationprivacyapp.models.Preference;
 import com.djsg38.locationprivacyapp.models.Session;
+import com.google.android.gms.maps.model.CameraPosition;
 
 import java.util.ArrayList;
 

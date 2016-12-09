@@ -14,57 +14,40 @@
     tools:showIn="@layout/activity_main">
 
 
-    <EditText
+    <Button
+        android:text="@string/list_running_applications"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="number"
-        android:ems="10"
-        android:id="@+id/kValue"
-        android:textAlignment="center"
-        android:layout_above="@+id/latView"
-        android:layout_alignParentEnd="true"
-        android:layout_toEndOf="@+id/listApps"
-        android:layout_alignStart="@+id/kMessage" />
+        android:id="@+id/listApps"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/mob_trace_button" />
 
     <Button
-        android:text="Activate Mock Locations"
+        android:text="@string/mobility_trace"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/mob_trace_button"
+        android:layout_below="@+id/listApps"
+        android:layout_alignStart="@+id/preferenceList" />
+
+    <Button
+        android:text="@string/preference_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/preferenceList"
+        android:layout_below="@+id/mob_trace_button"
+        android:layout_alignStart="@+id/activateMock" />
+
+    <Button
+        android:text="@string/activate_mock_locations"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/activateMock"
-        android:layout_marginTop="6dp"
-        android:layout_below="@+id/kMessage"
-        android:layout_alignStart="@+id/current_location_map_container" />
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/current_location_map_container"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="6dp"
-        android:layout_below="@+id/latView">
-
-    </FrameLayout>
+        android:layout_below="@+id/preferenceList"
+        android:layout_alignParentStart="true" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/longView"
-        android:layout_alignBaseline="@+id/latView"
-        android:layout_alignBottom="@+id/latView"
-        android:layout_toEndOf="@+id/activateMock" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:id="@+id/latView"
-        android:elevation="0dp"
-        android:layout_below="@+id/activateMock"
-        android:layout_toStartOf="@+id/longView"
-        android:layout_marginEnd="58dp" />
-
-    <TextView
-        android:text="Current k-value"
+        android:text="@string/current_k_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/kMessage"
@@ -73,29 +56,51 @@
         android:layout_alignBottom="@+id/preferenceList"
         android:layout_alignParentEnd="true" />
 
-    <Button
-        android:text="Mobility Trace"
+    <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/mob_trace_button"
-        android:layout_below="@+id/listApps"
-        android:layout_alignStart="@+id/preferenceList" />
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/kValue"
+        android:textAlignment="center"
+        android:layout_above="@+id/lat_long_container"
+        android:layout_alignParentEnd="true"
+        android:layout_alignStart="@+id/kMessage" />
 
-    <Button
-        android:text="List Running Applications"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/listApps"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/mob_trace_button" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/current_location_map_container"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/activateMock">
+        <include layout="@layout/fragment_current_location"/>
+    </FrameLayout>
 
-    <Button
-        android:text="Preference List"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/preferenceList"
-        android:layout_below="@+id/mob_trace_button"
-        android:layout_alignStart="@+id/activateMock" />
+    <LinearLayout
+        android:id="@+id/lat_long_container"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="220dp"
+        android:layout_below="@+id/activateMock"
+        android:layout_alignParentEnd="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/latView"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/longView"
+            android:layout_weight="1" />
+    </LinearLayout>
 
 
 </RelativeLayout>

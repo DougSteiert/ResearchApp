@@ -7,23 +7,21 @@ import android.support.v7.widget.Toolbar;
 
 import com.djsg38.locationprivacyapp.models.Location;
 import com.djsg38.locationprivacyapp.models.Session;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
-
-/**
- * Created by user404d on 12/7/16.
- */
 
 public class MobilityTrace extends AppCompatActivity implements OnMapReadyCallback {
     private Realm realm;
-    private RealmChangeListener mobiliityTraceListener;
+    private GoogleMap mob_map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -45,40 +43,50 @@ public class MobilityTrace extends AppCompatActivity implements OnMapReadyCallba
     protected void onDestroy() {
         super.onDestroy();
         realm.where(Session.class).findFirst().removeChangeListeners();
-        mobiliityTraceListener = null;
         realm.close();
+        realm = null;
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        final GoogleMap mob_map = googleMap;
+        mob_map = googleMap;
 
+        drawMobilityTrace(mob_map);
+    }
+
+    private void drawMobilityTrace(GoogleMap mob_map) {
         Session session = realm.where(Session.class).findFirst();
-        PolylineOptions mob_trace = new PolylineOptions();
-        for(Location reported_loc : session.getMockLocations()) {
-            LatLng pos = new LatLng(reported_loc.getLat(),
-                    reported_loc.getLong());
-            mob_map.addMarker(new MarkerOptions()
-                    .position(pos));
-            mob_trace.add(pos);
-        }
-        mob_map.addPolyline(mob_trace.color(Color.RED).width(5));
 
-        mobiliityTraceListener = new RealmChangeListener<Session>() {
-            @Override
-            public void onChange(Session session) {
-                Location reported_loc = session.getMockLocations().last();
+        if (session.getMobilityTrace().size() > 1) {
+            PolylineOptions mob_trace = new PolylineOptions();
+
+            Location ends = session.getMobilityTrace().first();
+            mob_map.addMarker(new MarkerOptions()
+                    .position(new LatLng(ends.getLat(),
+                            ends.getLong()))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+
+            ends = session.getMobilityTrace().last();
+            mob_map.addMarker(new MarkerOptions()
+                    .position(new LatLng(ends.getLat(),
+                            ends.getLong()))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+
+            for(Location reported_loc : session.getMobilityTrace()) {
                 LatLng pos = new LatLng(reported_loc.getLat(),
                         reported_loc.getLong());
-                mob_map.addMarker(new MarkerOptions()
-                        .position(pos));
-                mob_map.addPolyline((new PolylineOptions())
-                        .add(pos)
-                        .color(Color.RED)
-                        .width(5));
+                mob_trace.add(pos);
             }
-        };
 
-        realm.where(Session.class).findFirst().addChangeListener(mobiliityTraceListener);
+            mob_map.addPolyline(mob_trace.color(Color.BLUE).width(5));
+
+            CameraPosition move = new CameraPosition.Builder()
+                    .target(new LatLng(ends.getLat(),
+                            ends.getLong()))
+                    .zoom(5)
+                    .build();
+
+            mob_map.animateCamera(CameraUpdateFactory.newCameraPosition(move), 2000, null);
+        }
     }
 }

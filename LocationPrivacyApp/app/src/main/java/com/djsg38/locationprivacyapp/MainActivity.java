@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -24,7 +25,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.djsg38.locationprivacyapp.PreferenceUI.PreferenceList;
+import com.djsg38.locationprivacyapp.preferenceUI.PreferenceList;
 import com.djsg38.locationprivacyapp.models.Session;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -35,11 +36,14 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
+import io.realm.RealmList;
 
 public class MainActivity extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks,
@@ -51,8 +55,8 @@ public class MainActivity extends AppCompatActivity
     Button showProcesses;
     Button activateMockLocs;
     private Button showPreferences, mobilityTrace;
-    static TextView latView;
-    static TextView longView;
+    TextView latView;
+    TextView longView;
     EditText kValue;
     private int inputValue;
     private String value;
@@ -106,7 +110,7 @@ public class MainActivity extends AppCompatActivity
 
                 isServiceRunning = true;
                 locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
-                activateMockLocs.setText("Deactivate Mock Locations");
+                activateMockLocs.setText(R.string.activate_mock_locations);
 
                 Intent intent = new Intent(MainActivity.this, AnonymizationService.class);
                 intent.putExtra("kValue", inputValue);
@@ -116,7 +120,7 @@ public class MainActivity extends AppCompatActivity
                 activated = true;
             } else {
                 isServiceRunning = false;
-                activateMockLocs.setText("Activate Mock Locations");
+                activateMockLocs.setText(R.string.deactivate_mock_locations);
                 unbindService(serviceConnection);
                 activated = false;
 
@@ -132,9 +136,6 @@ public class MainActivity extends AppCompatActivity
                 }
                 locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
 
-                //necessary because we are no longer in the scope of our activity
-                Realm realm = Realm.getDefaultInstance();
-
                 Session session = realm.where(Session.class).findFirst();
 
                 for(com.djsg38.locationprivacyapp.models.Location loc : session.getMockLocations()) {
@@ -146,7 +147,6 @@ public class MainActivity extends AppCompatActivity
                     Log.i("Real tracked: ",
                             String.valueOf(loc.getLat()) + ", " + String.valueOf(loc.getLong()));
                 }
-                realm.close();
             }
         }
     };
@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity
         }
     };
 
-    public static void updateCoords(double lat, double lng) {
+    public void updateCoords(double lat, double lng) {
         latView.setText("Lat: " + String.valueOf(lat));
         longView.setText("Lng: " + String.valueOf(lng));
     }
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity
                 .deleteRealmIfMigrationNeeded()
                 .build();
         realm = Realm.getInstance(config);
-        */
+//        */
 
         realm.executeTransaction(new Realm.Transaction() {
             @Override
@@ -201,13 +201,23 @@ public class MainActivity extends AppCompatActivity
                     realm.deleteAll();
                 }
                 Session session = realm.where(Session.class).findFirst();
-                if (session == null) realm.createObject(Session.class);
+                if (session == null) {
+                    realm.createObject(Session.class);
+                }
+//                /*
+                else {
+                    session.getMobilityTrace().deleteAllFromRealm();
+                }
+//                */
             }
         });
 
         ServiceUtilities.addLocationActivities(getApplicationContext(), realm);
 
         Log.i("Total sessions: ", String.valueOf(realm.where(Session.class).count()));
+
+        MapFragment reported_loc = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        reported_loc.getMapAsync(this);
 
         createLocationRequest();
         buildGoogleApiClient();
@@ -233,7 +243,6 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onLocationChanged(Location location) {
                 if(!isServiceRunning) {
-                    Realm realm = Realm.getDefaultInstance();
 
                     Boolean isIn = false;
 
@@ -254,8 +263,6 @@ public class MainActivity extends AppCompatActivity
                         session.addNewRealLocation(location);
                         realm.commitTransaction();
                     }
-
-                    realm.close();
                 }
 
                 Log.i("location", location.toString());
@@ -304,20 +311,15 @@ public class MainActivity extends AppCompatActivity
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
+
         locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
-
-        MapFragment current_location = MapFragment.newInstance();
-        current_location.getMapAsync(this);
-
-        getFragmentManager().beginTransaction()
-                .add(R.id.current_location_map_container, current_location)
-                .commit();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         realm.close();
+        if(isServiceRunning) unbindService(serviceConnection);
     }
 
     @Override
@@ -347,16 +349,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -365,12 +363,17 @@ public class MainActivity extends AppCompatActivity
         updateCoords(location.getLatitude(), location.getLongitude());
         if(mMap != null) {
             LatLng reported = new LatLng(location.getLatitude(),
-                                         location.getLongitude());
+                    location.getLongitude());
             mMap.clear();
             mMap.addMarker(new MarkerOptions()
                     .position(reported)
-                    .title("Reported Location"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(reported));
+                    .title("Reported Location")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            CameraPosition moveMap = new CameraPosition.Builder()
+                    .target(reported)
+                    .zoom(7)
+                    .build();
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(moveMap), 2000, null);
         }
     }
 
@@ -403,8 +406,20 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.addMarker(new MarkerOptions()
-                .position(new LatLng(0, 0))
-                .title("Waiting to begin..."));
+        RealmList<com.djsg38.locationprivacyapp.models.Location>
+                mobilityTrace = realm.where(Session.class).findFirst().getMobilityTrace();
+        if(mobilityTrace.size() > 0) {
+            LatLng reported = new LatLng(mobilityTrace.last().getLat(),
+                    mobilityTrace.last().getLong());
+            mMap.addMarker(new MarkerOptions()
+                    .position(reported)
+                    .title("Reported Location")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            CameraPosition moveMap = new CameraPosition.Builder()
+                    .target(reported)
+                    .zoom(7)
+                    .build();
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(moveMap), 2000, null);
+        }
     }
 }

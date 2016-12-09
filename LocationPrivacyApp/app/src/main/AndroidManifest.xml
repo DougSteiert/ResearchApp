@@ -16,7 +16,8 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -32,7 +33,7 @@
                 android:value="com.djsg38.locationprivacyapp.MainActivity" />
         </activity>
         <activity
-            android:name=".PreferenceUI.PreferenceList"
+            android:name=".preferenceUI.PreferenceList"
             android:label="@string/title_activity_preference_list"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">

@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity
 
                 isServiceRunning = true;
                 locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
-                activateMockLocs.setText(R.string.activate_mock_locations);
+                activateMockLocs.setText(R.string.deactivate_mock_locations);
 
                 Intent intent = new Intent(MainActivity.this, AnonymizationService.class);
                 intent.putExtra("kValue", inputValue);
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity
                 activated = true;
             } else {
                 isServiceRunning = false;
-                activateMockLocs.setText(R.string.deactivate_mock_locations);
+                activateMockLocs.setText(R.string.activate_mock_locations);
                 unbindService(serviceConnection);
                 activated = false;
 

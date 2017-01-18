@@ -18,7 +18,9 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Random;
 
 import io.realm.Realm;
@@ -186,17 +188,30 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
             }
             LocationServices.FusedLocationApi.setMockLocation(mGoogleApiClient, mockLoc);
             if(!realm.isClosed()) {
+                String time = getDate(System.currentTimeMillis(), "dd/MM/yyyy hh:mm:ss.SSS");
                 realm.beginTransaction();
                 realm.where(Session.class).findFirst().getMobilityTrace()
                         .add(new com.djsg38.locationprivacyapp.models.Location()
                                 .setLat(mockLoc.getLatitude())
-                                .setLong(mockLoc.getLongitude()));
+                                .setLong(mockLoc.getLongitude())
+                                .setTime(time));
                 realm.commitTransaction();
             }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static String getDate(long milliSeconds, String dateFormat)
+    {
+        // Create a DateFormatter object for displaying date in specified format.
+        SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
+
+        // Create a calendar object that will convert the date and time value in milliseconds to date.
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(milliSeconds);
+        return formatter.format(calendar.getTime());
     }
 
     // Begin faking the location

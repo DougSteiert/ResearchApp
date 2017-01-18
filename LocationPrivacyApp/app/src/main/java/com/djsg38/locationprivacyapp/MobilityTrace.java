@@ -68,19 +68,29 @@ public class MobilityTrace extends AppCompatActivity implements OnMapReadyCallba
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
             }
 
-            Location ends = session.getMobilityTrace().first();
-            mob_map.addMarker(new MarkerOptions()
-                    .position(new LatLng(ends.getLat(),
-                            ends.getLong()))
-                    .title("Previous Location")
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+            Location ends = session.getMobilityTrace().last();
 
-            ends = session.getMobilityTrace().last();
-            mob_map.addMarker(new MarkerOptions()
+            /*mob_map.addMarker(new MarkerOptions()
                     .position(new LatLng(ends.getLat(),
                             ends.getLong()))
-                    .title("Current Location")
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                    .title("Current Location " + String.valueOf(ends.getTime()))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));*/
+
+            Boolean isReal = false;
+            for(Location reportedLoc : session.getMobilityTrace()) {
+                for(com.djsg38.locationprivacyapp.models.Location loc : session.getRealLocations()) {
+                    if (reportedLoc == loc) {
+                        isReal = true;
+                    }
+                }
+                if(!isReal) {
+                    mob_map.addMarker(new MarkerOptions()
+                            .position(new LatLng(reportedLoc.getLat(),
+                                    reportedLoc.getLong()))
+                            .title("Reported Location " + String.valueOf(reportedLoc.getTime()))
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                }
+            }
 
             for(Location reported_loc : session.getMobilityTrace()) {
                 LatLng pos = new LatLng(reported_loc.getLat(),

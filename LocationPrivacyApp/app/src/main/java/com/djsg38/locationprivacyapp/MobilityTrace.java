@@ -60,16 +60,26 @@ public class MobilityTrace extends AppCompatActivity implements OnMapReadyCallba
         if (session.getMobilityTrace().size() > 1) {
             PolylineOptions mob_trace = new PolylineOptions();
 
+            for(com.djsg38.locationprivacyapp.models.Location loc : session.getRealLocations()) {
+                mob_map.addMarker(new MarkerOptions()
+                        .position(new LatLng(loc.getLat(),
+                                loc.getLong()))
+                        .title("Real Location")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            }
+
             Location ends = session.getMobilityTrace().first();
             mob_map.addMarker(new MarkerOptions()
                     .position(new LatLng(ends.getLat(),
                             ends.getLong()))
+                    .title("Previous Location")
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
             ends = session.getMobilityTrace().last();
             mob_map.addMarker(new MarkerOptions()
                     .position(new LatLng(ends.getLat(),
                             ends.getLong()))
+                    .title("Current Location")
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
             for(Location reported_loc : session.getMobilityTrace()) {

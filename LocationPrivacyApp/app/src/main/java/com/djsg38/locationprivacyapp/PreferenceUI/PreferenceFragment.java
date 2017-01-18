@@ -1,4 +1,4 @@
-package com.djsg38.locationprivacyapp.preferenceUI;
+package com.djsg38.locationprivacyapp.PreferenceUI;
 
 import android.app.FragmentManager;
 import android.content.Context;

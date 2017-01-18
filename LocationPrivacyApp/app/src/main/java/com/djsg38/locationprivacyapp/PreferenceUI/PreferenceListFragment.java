@@ -1,8 +1,10 @@
-package com.djsg38.locationprivacyapp.preferenceUI;
+package com.djsg38.locationprivacyapp.PreferenceUI;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +35,7 @@ public class PreferenceListFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_preference_list, container, false);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);

@@ -1,4 +1,4 @@
-package com.djsg38.locationprivacyapp.preferenceUI;
+package com.djsg38.locationprivacyapp.PreferenceUI;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -11,7 +11,7 @@ import io.realm.Realm;
 
 public class PreferenceList
         extends AppCompatActivity
-        implements PreferenceFragment.OnFragmentInteractionListener {
+        implements com.djsg38.locationprivacyapp.PreferenceUI.PreferenceFragment.OnFragmentInteractionListener {
 
     Realm realm;
 

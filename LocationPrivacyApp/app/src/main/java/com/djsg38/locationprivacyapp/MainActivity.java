@@ -25,7 +25,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.djsg38.locationprivacyapp.preferenceUI.PreferenceList;
+import com.djsg38.locationprivacyapp.PreferenceUI.PreferenceList;
 import com.djsg38.locationprivacyapp.models.Session;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;

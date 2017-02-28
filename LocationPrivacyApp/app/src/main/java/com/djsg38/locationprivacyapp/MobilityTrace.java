@@ -4,9 +4,12 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
 import com.djsg38.locationprivacyapp.models.Location;
+import com.djsg38.locationprivacyapp.models.Semantics;
 import com.djsg38.locationprivacyapp.models.Session;
+import com.djsg38.locationprivacyapp.models.Trace;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -77,19 +80,22 @@ public class MobilityTrace extends AppCompatActivity implements OnMapReadyCallba
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));*/
 
             Boolean isReal = false;
-            for(Location reportedLoc : session.getMobilityTrace()) {
-                for(com.djsg38.locationprivacyapp.models.Location loc : session.getRealLocations()) {
-                    if (reportedLoc == loc) {
+            for(Trace reportedLoc : session.getMultipleTraces()) {
+                /*for(com.djsg38.locationprivacyapp.models.Location loc : session.getRealLocations()) {
+                    if (reportedLoc. == loc) {
                         isReal = true;
                     }
-                }
+                }*/
+                Log.i("hdkfds", reportedLoc.toString());
+                /*Location location = reportedLoc.getLocation();
+                Log.i("hmmm", String.valueOf(location.getLat()));
                 if(!isReal) {
                     mob_map.addMarker(new MarkerOptions()
-                            .position(new LatLng(reportedLoc.getLat(),
-                                    reportedLoc.getLong()))
-                            .title("Reported Location " + String.valueOf(reportedLoc.getTime()))
+                            .position(new LatLng(location.getLat(),
+                                    location.getLong()))
+                            .title("Reported Location " + String.valueOf(reportedLoc.getName()))
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-                }
+                }*/
             }
 
             for(Location reported_loc : session.getMobilityTrace()) {

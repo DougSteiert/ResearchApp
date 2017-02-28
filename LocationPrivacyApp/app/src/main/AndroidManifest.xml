@@ -47,7 +47,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="com.google.android.geo.API_KEY"
-                android:value="@string/google_maps_key" />
+                android:value="AIzaSyA_OTzsVFv64L7iuozp8dtu2WlsLv389F8" />
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.djsg38.locationprivacyapp.MainActivity" />
@@ -68,7 +68,7 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+            android:value="AIzaSyA_OTzsVFv64L7iuozp8dtu2WlsLv389F8" />
     </application>
 
 </manifest>

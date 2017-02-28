@@ -10,7 +10,12 @@ import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import com.djsg38.locationprivacyapp.NearbyPlaces.ConvertPlaceTypes;
+import com.djsg38.locationprivacyapp.NearbyPlaces.FindNearbyPlaces;
+import com.djsg38.locationprivacyapp.NearbyPlaces.PlaceAttributes;
+import com.djsg38.locationprivacyapp.models.Semantics;
 import com.djsg38.locationprivacyapp.models.Session;
+import com.djsg38.locationprivacyapp.models.Trace;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -21,7 +26,9 @@ import com.google.android.gms.maps.model.LatLng;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutionException;
 
 import io.realm.Realm;
 import io.realm.RealmList;
@@ -37,6 +44,9 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     private int realLocUse;
     private int randIndex;
 
+    // Create manual place types to cycle through for first-round testing
+    private ArrayList<String> manualPlaceTypes = new ArrayList<>();
+
     private int count = 0;
 
     com.djsg38.locationprivacyapp.models.Location currentLoc;
@@ -47,6 +57,12 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
     ArrayList<XMLAttributes> randLocs;
     ArrayList<String> cityNames;
     ArrayList<LatLng> cityCoords;
+
+    ConvertPlaceTypes convertPlaceTypes;
+    FindNearbyPlaces findNearbyPlaces;
+    ArrayList<PlaceAttributes> places;
+    List<Integer> types;
+    List<String> typeStrings;
 
     Handler handler = new Handler();
     Runnable runnable = new Runnable() {
@@ -61,9 +77,23 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         }
     };
 
-    public LocationAnonymizer(Context context, AnonymizationService anonymizationService, Integer kValue) {
+    public LocationAnonymizer(Context context, AnonymizationService anonymizationService, Integer kValue) throws ExecutionException, InterruptedException {
         this.context = context;
         this.anonymizationService = anonymizationService;
+
+        realm = Realm.getDefaultInstance();
+        Session session = realm.where(Session.class).findFirst();
+
+        // Add some values for manual testing
+        manualPlaceTypes.add("restaurant");
+        manualPlaceTypes.add("university");
+        manualPlaceTypes.add("gas_station");
+        manualPlaceTypes.add("movie_theater");
+        manualPlaceTypes.add("cafe");
+        manualPlaceTypes.add("health");
+
+        findNearbyPlaces = new FindNearbyPlaces();
+        places = new ArrayList<>();
 
         rand = new Random();
 
@@ -72,15 +102,87 @@ public class LocationAnonymizer implements GoogleApiClient.ConnectionCallbacks, 
         cityNames = new ArrayList<>();
         cityCoords = new ArrayList<>();
 
+        int randTypeIndex;
+
+        realm.beginTransaction();
+        if(!session.getMultipleTraces().isEmpty()) {
+            session.getMultipleTraces().deleteAllFromRealm();
+        }
+        realm.commitTransaction();
+
         // randLocs will be empty if kvalue was 1, which then causes mock locations to break
         // as getting a random index on something of size 0 fails
+
+        int id = 2;
         for (XMLAttributes data : randLocs) {
+            realm.beginTransaction();
+            Trace trace = new Trace();
+            trace.singleTrace = new RealmList<>();
+
             cityNames.add(data.getName());
             cityCoords.add(new LatLng(data.getLat(), data.getLng()));
+            //Log.i("Fake city", data.getName());
+
+            Location loc = new Location("");
+            loc.setLatitude(data.getLat());
+            loc.setLongitude(data.getLng());
+            randTypeIndex = rand.nextInt(manualPlaceTypes.size());
+            places = findNearbyPlaces.findNearbyPlaces(loc, manualPlaceTypes.get(randTypeIndex));
+
+            for(PlaceAttributes place: places) {
+                Semantics temp = new Semantics();
+                if(place.getName() != null) {
+                    temp.setLat(place.getLat());
+                    temp.setLng(place.getLng());
+                    temp.setName(place.getName());
+
+                    if(!realm.isClosed()) {
+                        trace.setID(id);
+                        trace.addNewSemanticTrace(temp);
+                    }
+                }
+                else {
+                    trace.addNewSemanticTrace(temp.setName("").setLat(0).setLng(0));
+                }
+                Log.i("WHOA", temp.getName());
+            }
+
+            if(!trace.getSingleTrace().isEmpty()) {
+                if(!realm.isClosed()) {
+                    Log.i("ID", String.valueOf(trace.getID()));
+                    for(Semantics place : trace.getSingleTrace()) {
+                        Log.i("Trace", place.getName());
+                    }
+                    session.addNewMultipleTrace(trace);
+                }
+            }
+
+            id++;
+            realm.commitTransaction();
         }
 
-        realm = Realm.getDefaultInstance();
-        Session session = realm.where(Session.class).findFirst();
+        if(!session.getMultipleTraces().isEmpty()) {
+            Log.i("size", String.valueOf(session.getMultipleTraces().size()));
+            int i=1;
+            for(Trace traces : session.getMultipleTraces()) {
+                Log.i("IDhi",String.valueOf(traces.getID()));
+                if(!traces.getSingleTrace().isEmpty()) {
+                    for(Semantics place : traces.getSingleTrace()) {
+                        if(place.getName() != null) {
+                            Log.i("MultTraces" +i, String.valueOf(place.getName()));
+                        }
+                    }
+                }
+                else {
+                    Log.i("Trace", "Is empty I guess?");
+                }
+
+                i++;
+            }
+        }
+        else {
+            Log.i("MultTrace", "is empty I guess");
+        }
 
         currentLoc = new com.djsg38.locationprivacyapp.models.Location();
         // real locations is potentially empty

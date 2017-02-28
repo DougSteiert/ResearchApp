@@ -1,10 +1,13 @@
 package com.djsg38.locationprivacyapp.models;
 
+import android.util.Log;
+
 import io.realm.RealmList;
 import io.realm.RealmObject;
 
 public class Session extends RealmObject {
     public RealmList<Location> realLocations;
+    public RealmList<Trace> multipleTraces;
     public RealmList<Location> mockLocations;
     public RealmList<Location> mobilityTrace;
     public RealmList<Preference> preferences;
@@ -16,6 +19,14 @@ public class Session extends RealmObject {
     public Session setPreferences(RealmList<Preference> preferences) {
         this.preferences = preferences;
         return this;
+    }
+
+    public void addNewMultipleTrace(Trace trace) {
+        multipleTraces.add(trace);
+    }
+
+    public RealmList<Trace> getMultipleTraces() {
+        return multipleTraces;
     }
 
     public RealmList<Location> getRealLocations() {

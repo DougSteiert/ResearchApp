@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.djsg38.locationprivacyapp.PreferenceUI.PreferenceList;
 import com.djsg38.locationprivacyapp.models.Session;
+import com.djsg38.locationprivacyapp.models.Trace;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -200,7 +201,9 @@ public class MainActivity extends AppCompatActivity
                 if (sessionCount > 1) {
                     realm.deleteAll();
                 }
+
                 Session session = realm.where(Session.class).findFirst();
+
                 if (session == null) {
                     realm.createObject(Session.class);
                 }
@@ -226,12 +229,14 @@ public class MainActivity extends AppCompatActivity
         serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-
+                AnonymizationService.LocalBinder binder = (AnonymizationService.LocalBinder) service;
+                anonymizationService = binder.getService();
+                activated = true;
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
-
+                activated = false;
             }
         };
 

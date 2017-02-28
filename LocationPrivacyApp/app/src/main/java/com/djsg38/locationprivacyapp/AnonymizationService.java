@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -24,11 +25,18 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.concurrent.ExecutionException;
+
 public class AnonymizationService extends Service {
 
-    private int kValue;
-
     LocationAnonymizer locationAnonymizer;
+    private final IBinder mBinder = new LocalBinder();
+
+    public class LocalBinder extends Binder {
+        AnonymizationService getService() {
+            return AnonymizationService.this;
+        }
+    }
 
     @Override
     public void onCreate() {
@@ -38,7 +46,8 @@ public class AnonymizationService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        stopService();
+        locationAnonymizer.stopMockLocs();
+        //stopService();
         Toast.makeText(this, "Anonymization Service Stopped", Toast.LENGTH_SHORT).show();
     }
 
@@ -47,10 +56,16 @@ public class AnonymizationService extends Service {
         Toast.makeText(this, "Anonymization Started", Toast.LENGTH_SHORT).show();
         showNotif();
 
-        kValue = intent.getIntExtra("kValue", 1);
-
-        locationAnonymizer = new LocationAnonymizer(this, this, kValue);
-        return null;
+        try {
+            int kValue = intent.getIntExtra("kValue", 1);
+            locationAnonymizer = new LocationAnonymizer(this, this, kValue);
+            Log.i("locationAnonymizer", "Alive and Well");
+        }
+        catch (Exception e) {
+            String msg = (e.getMessage() == null)?"Failed to init.":e.getMessage();
+            Log.i("Init error", msg);
+        }
+        return mBinder;
     }
 
     // Stop the service from running
